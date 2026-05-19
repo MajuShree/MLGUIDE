@@ -1,0 +1,2594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ML Algorithms — Complete Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;700&family=Syne:wght@400;700;800&family=Literata:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f4f6fb;
+    --surface: #ffffff;
+    --surface2: #edf0f7;
+    --border: #d4d9e8;
+    --reg: #0a8f5c;
+    --cls: #d94040;
+    --clu: #6c3fc8;
+    --accent: #b07800;
+    --text: #1a1a2e;
+    --muted: #5a607a;
+    --code-bg: #1e2130;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Literata', Georgia, serif;
+    line-height: 1.7;
+    min-height: 100vh;
+  }
+
+  /* HERO */
+  .hero {
+    background: radial-gradient(ellipse 80% 60% at 50% -10%, #dcd4f8 0%, #f4f6fb 70%);
+    border-bottom: 1px solid var(--border);
+    padding: 60px 40px 50px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+  }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(108,63,200,0.10); border: 1px solid rgba(108,63,200,0.25);
+    color: var(--clu); font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+    padding: 6px 16px; border-radius: 20px; margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    line-height: 1.1; margin-bottom: 16px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #6c3fc8 50%, #0a8f5c 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p { color: var(--muted); font-size: 1.05rem; max-width: 560px; margin: 0 auto 36px; }
+  .pill-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .pill {
+    padding: 8px 20px; border-radius: 30px; font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; font-weight: 700; letter-spacing: 1px; cursor: pointer;
+    transition: all 0.2s; border: 2px solid transparent;
+  }
+  .pill-reg { background: rgba(10,143,92,0.10); color: var(--reg); border-color: rgba(10,143,92,0.3); }
+  .pill-cls { background: rgba(217,64,64,0.10); color: var(--cls); border-color: rgba(217,64,64,0.3); }
+  .pill-clu { background: rgba(108,63,200,0.10); color: var(--clu); border-color: rgba(108,63,200,0.3); }
+  .pill:hover { transform: translateY(-2px); filter: brightness(1.2); }
+
+  /* NAV TABS */
+  .tabs-container {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(244,246,251,0.97); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 0; overflow-x: auto;
+  }
+  .tab-btn {
+    padding: 16px 28px; border: none; background: none;
+    font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+    color: var(--muted); border-bottom: 2px solid transparent;
+    transition: all 0.2s; white-space: nowrap;
+  }
+  .tab-btn.active-reg { color: var(--reg); border-color: var(--reg); }
+  .tab-btn.active-cls { color: var(--cls); border-color: var(--cls); }
+  .tab-btn.active-clu { color: var(--clu); border-color: var(--clu); }
+  .tab-btn.active-cmp { color: var(--accent); border-color: var(--accent); }
+  .tab-btn:hover:not(.active-reg):not(.active-cls):not(.active-clu):not(.active-cmp) { color: var(--text); }
+
+  /* SECTIONS */
+  .section { display: none; padding: 48px 40px; max-width: 1100px; margin: 0 auto; }
+  .section.active { display: block; animation: fadeIn 0.3s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-header { margin-bottom: 40px; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 10px;
+  }
+  .section-label.reg { color: var(--reg); }
+  .section-label.cls { color: var(--cls); }
+  .section-label.clu { color: var(--clu); }
+  .section-label.cmp { color: var(--accent); }
+  .section-header h2 {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+  }
+  .section-header p { color: var(--muted); margin-top: 10px; max-width: 680px; }
+
+  /* ALGO CARDS */
+  .algo-grid { display: grid; gap: 28px; }
+  .algo-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .algo-card:hover { transform: translateY(-2px); }
+  .algo-card.reg { border-left: 3px solid var(--reg); }
+  .algo-card.cls { border-left: 3px solid var(--cls); }
+  .algo-card.clu { border-left: 3px solid var(--clu); }
+
+  .card-header {
+    padding: 22px 28px 16px;
+    display: flex; justify-content: space-between; align-items: flex-start;
+    flex-wrap: wrap; gap: 12px;
+  }
+  .card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.2rem; }
+  .card-sub { color: var(--muted); font-size: 0.88rem; margin-top: 4px; font-family: 'JetBrains Mono', monospace; }
+  .tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    padding: 3px 10px; border-radius: 20px; letter-spacing: 0.5px;
+  }
+  .tag-reg { background: rgba(10,143,92,0.10); color: var(--reg); }
+  .tag-cls { background: rgba(217,64,64,0.10); color: var(--cls); }
+  .tag-clu { background: rgba(108,63,200,0.10); color: var(--clu); }
+  .tag-neutral { background: rgba(0,0,0,0.06); color: var(--muted); }
+
+  /* METRICS ROW */
+  .metrics-row {
+    display: flex; gap: 10px; padding: 0 28px 16px; flex-wrap: wrap;
+  }
+  .metric-chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 14px; font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+  }
+  .metric-chip span { display: block; color: var(--muted); font-size: 9px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .metric-chip strong { color: var(--accent); }
+
+  /* CODE */
+  .code-block {
+    background: var(--code-bg); border-top: 1px solid var(--border);
+    position: relative;
+  }
+  .code-toggle {
+    width: 100%; padding: 12px 28px;
+    background: none; border: none; cursor: pointer;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+    text-align: left; display: flex; align-items: center; gap: 8px;
+    transition: color 0.2s;
+  }
+  .code-toggle:hover { color: var(--text); }
+  .code-toggle .arrow { transition: transform 0.2s; }
+  .code-toggle.open .arrow { transform: rotate(90deg); }
+  .code-content { display: none; padding: 0 28px 24px; overflow-x: auto; }
+  .code-content.open { display: block; }
+  pre {
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px;
+    line-height: 1.8; color: #c9d1d9; white-space: pre;
+  }
+  .kw { color: #ff7b72; }
+  .fn { color: #d2a8ff; }
+  .st { color: #a5d6ff; }
+  .cm { color: #4b5563; font-style: italic; }
+  .nu { color: #79c0ff; }
+  .op { color: #ff9066; }
+
+  /* HOW TO RUN */
+  .run-section {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; margin-top: 16px;
+  }
+  .run-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 16px; color: var(--accent); }
+  .run-steps { counter-reset: step; }
+  .run-step {
+    counter-increment: step;
+    display: flex; gap: 16px; margin-bottom: 16px; align-items: flex-start;
+  }
+  .run-step::before {
+    content: counter(step);
+    min-width: 28px; height: 28px;
+    background: rgba(176,120,0,0.10); color: var(--accent);
+    border: 1px solid rgba(176,120,0,0.3);
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .run-step p { font-size: 0.9rem; color: var(--muted); }
+  .run-step code {
+    display: inline-block; background: var(--code-bg); padding: 2px 8px;
+    border-radius: 4px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: var(--accent); margin-top: 4px;
+  }
+
+  /* COMPARISON TABLE */
+  .compare-table-wrap { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+  thead tr { background: var(--surface2); }
+  th {
+    padding: 14px 18px; text-align: left;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--muted);
+    font-weight: 400;
+  }
+  td { padding: 13px 18px; border-top: 1px solid var(--border); font-size: 0.88rem; }
+  tr:nth-child(even) td { background: rgba(0,0,0,0.018); }
+  .type-badge {
+    display: inline-block; padding: 2px 10px; border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 700;
+  }
+  .badge-reg { background: rgba(10,143,92,0.10); color: var(--reg); }
+  .badge-cls { background: rgba(217,64,64,0.10); color: var(--cls); }
+  .badge-clu { background: rgba(108,63,200,0.10); color: var(--clu); }
+
+  /* STAR RATING */
+  .star { color: var(--accent); font-size: 12px; }
+  .star-empty { color: var(--border); font-size: 12px; }
+
+  .tab-btn.active-bgn { color: #0e6eb4; border-color: #0e6eb4; }
+  .tab-btn.active-adv { color: #b42878; border-color: #b42878; }
+  .tab-btn.active-viz { color: #1e9664; border-color: #1e9664; }
+
+  /* CONCEPT CARDS */
+  .concept-grid { display: grid; gap: 24px; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+  .concept-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .concept-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(0,0,0,0.08); }
+  .concept-card.bgn { border-left: 3px solid #0e6eb4; }
+  .concept-card.adv { border-left: 3px solid #b42878; }
+  .concept-icon { font-size: 2rem; margin-bottom: 12px; }
+  .concept-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; margin-bottom: 8px; }
+  .concept-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.65; margin-bottom: 16px; }
+  .concept-key { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-top: 10px; }
+  .concept-key-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .concept-key ul { list-style: none; display: flex; flex-direction: column; gap: 5px; font-size: 0.85rem; }
+  .concept-key li::before { content: "→ "; color: var(--accent); font-weight: 700; }
+
+  /* VIZ SECTION */
+  .viz-grid { display: grid; gap: 28px; }
+  .viz-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .viz-card-header { padding: 20px 24px 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+  .viz-card-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.05rem; }
+  .viz-card-sub { color: var(--muted); font-size: 0.83rem; font-family: 'JetBrains Mono', monospace; margin-top: 3px; }
+  .viz-controls { display: flex; gap: 10px; padding: 16px 24px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
+  .viz-btn {
+    padding: 7px 18px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--surface2); color: var(--text); font-family: 'JetBrains Mono', monospace;
+    font-size: 12px; cursor: pointer; transition: all 0.18s;
+  }
+  .viz-btn:hover, .viz-btn.active { background: var(--text); color: var(--bg); border-color: var(--text); }
+  .viz-btn.danger { border-color: #d94040; color: #d94040; }
+  .viz-btn.danger:hover { background: #d94040; color: #fff; }
+  .viz-canvas-wrap { padding: 16px 24px 24px; }
+  canvas.viz-canvas { width: 100%; border-radius: 8px; display: block; }
+  .viz-legend { display: flex; gap: 16px; flex-wrap: wrap; padding: 0 24px 16px; font-family: 'JetBrains Mono', monospace; font-size: 11px; }
+  .viz-legend-item { display: flex; align-items: center; gap: 6px; }
+  .viz-legend-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .viz-select { padding: 7px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; }
+  .viz-info { margin: 0 24px 16px; padding: 12px 16px; background: var(--surface2); border-radius: 8px; font-size: 0.85rem; color: var(--muted); border-left: 3px solid var(--accent); }
+
+  /* RESPONSIVE for new content */
+  @media (max-width: 600px) {
+    .concept-grid { grid-template-columns: 1fr; }
+  }
+    .section { padding: 32px 20px; }
+    .hero { padding: 40px 20px 36px; }
+    .card-header, .metrics-row { padding-left: 20px; padding-right: 20px; }
+    .code-content { padding: 0 20px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-badge">🧠 Machine Learning</div>
+  <h1>Complete ML Algorithms Guide</h1>
+  <p>Regression · Classification · Clustering — every algorithm, real code, metrics & comparisons.</p>
+  <div class="pill-row">
+    <div class="pill pill-reg" onclick="showTab('regression')">📈 Regression</div>
+    <div class="pill pill-cls" onclick="showTab('classification')">🎯 Classification</div>
+    <div class="pill pill-clu" onclick="showTab('clustering')">🔵 Clustering</div>
+    <div class="pill" style="background:rgba(176,120,0,0.10);color:var(--accent);border-color:rgba(176,120,0,0.3)" onclick="showTab('comparison')">⚡ Compare All</div>
+    <div class="pill" style="background:rgba(14,110,180,0.10);color:#0e6eb4;border-color:rgba(14,110,180,0.3)" onclick="showTab('beginner')">🎓 Beginner</div>
+    <div class="pill" style="background:rgba(180,40,120,0.10);color:#b42878;border-color:rgba(180,40,120,0.3)" onclick="showTab('advanced')">🚀 Advanced</div>
+    <div class="pill" style="background:rgba(30,150,100,0.10);color:#1e9664;border-color:rgba(30,150,100,0.3)" onclick="showTab('visualizations')">📊 Visualizations</div>
+  </div>
+</div>
+
+<div class="tabs-container">
+  <button class="tab-btn active-reg" id="tab-regression" onclick="showTab('regression')">📈 Regression</button>
+  <button class="tab-btn" id="tab-classification" onclick="showTab('classification')">🎯 Classification</button>
+  <button class="tab-btn" id="tab-clustering" onclick="showTab('clustering')">🔵 Clustering</button>
+  <button class="tab-btn" id="tab-beginner" onclick="showTab('beginner')">🎓 Beginner Concepts</button>
+  <button class="tab-btn" id="tab-advanced" onclick="showTab('advanced')">🚀 Advanced Topics</button>
+  <button class="tab-btn" id="tab-visualizations" onclick="showTab('visualizations')">📊 Visualizations</button>
+  <button class="tab-btn" id="tab-comparison" onclick="showTab('comparison')">⚡ Compare All</button>
+  <button class="tab-btn" id="tab-run" onclick="showTab('run')">🚀 How to Run</button>
+</div>
+
+<!-- ========= REGRESSION ========= -->
+<div class="section active" id="section-regression">
+  <div class="section-header">
+    <div class="section-label reg">Supervised Learning</div>
+    <h2>Regression Algorithms</h2>
+    <p>Predict continuous numerical values. Dataset used: <strong>California Housing</strong> (sklearn) — predict median house prices.</p>
+  </div>
+
+  <div class="algo-grid">
+
+    <!-- Linear Regression -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">1. Linear Regression</div>
+          <div class="card-sub">sklearn · LinearRegression</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">parametric</span>
+          <span class="tag tag-neutral">fast</span>
+          <span class="tag tag-neutral">interpretable</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.606</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.531</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.726</strong></div>
+        <div class="metric-chip"><span>Training</span><strong>~0.1s</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="cm"># ── Linear Regression on California Housing ──</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LinearRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_absolute_error, mean_squared_error, r2_score
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+<span class="cm"># Load data</span>
+data = fetch_california_housing()
+X, y = data.data, data.target
+
+<span class="cm"># Split</span>
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+<span class="cm"># Scale features</span>
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test  = scaler.transform(X_test)
+
+<span class="cm"># Train</span>
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+<span class="cm"># Evaluate</span>
+y_pred = model.predict(X_test)
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred)):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Ridge -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">2. Ridge Regression (L2)</div>
+          <div class="card-sub">sklearn · Ridge</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">regularized</span>
+          <span class="tag tag-neutral">handles multicollinearity</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.606</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.531</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.726</strong></div>
+        <div class="metric-chip"><span>α (alpha)</span><strong>1.0</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge
+
+model = Ridge(alpha=<span class="nu">1.0</span>)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred)):.4f}"</span>)
+
+<span class="cm"># Tune alpha with cross-validation</span>
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> RidgeCV
+ridge_cv = RidgeCV(alphas=[<span class="nu">0.1</span>, <span class="nu">1.0</span>, <span class="nu">10.0</span>, <span class="nu">100.0</span>])
+ridge_cv.fit(X_train, y_train)
+<span class="fn">print</span>(<span class="st">f"Best alpha: {ridge_cv.alpha_}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Lasso -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">3. Lasso Regression (L1)</div>
+          <div class="card-sub">sklearn · Lasso</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">feature selection</span>
+          <span class="tag tag-neutral">sparse model</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.598</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.536</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.733</strong></div>
+        <div class="metric-chip"><span>Sparsity</span><strong>sets coefs→0</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Lasso
+
+model = Lasso(alpha=<span class="nu">0.01</span>, max_iter=<span class="nu">5000</span>)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+
+<span class="cm"># See which features were eliminated</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+coef_df = pd.DataFrame({
+    <span class="st">'feature'</span>: data.feature_names,
+    <span class="st">'coef'</span>: model.coef_
+})
+<span class="fn">print</span>(coef_df[coef_df.coef != <span class="nu">0</span>])</pre></div>
+      </div>
+    </div>
+
+    <!-- Decision Tree Regressor -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">4. Decision Tree Regressor</div>
+          <div class="card-sub">sklearn · DecisionTreeRegressor</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">non-parametric</span>
+          <span class="tag tag-neutral">non-linear</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.622</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.452</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.712</strong></div>
+        <div class="metric-chip"><span>Depth</span><strong>max=5</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeRegressor
+
+model = DecisionTreeRegressor(max_depth=<span class="nu">5</span>, random_state=<span class="nu">42</span>)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred)):.4f}"</span>)
+
+<span class="cm"># Feature importance</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+fi = pd.Series(model.feature_importances_, index=data.feature_names)
+<span class="fn">print</span>(fi.sort_values(ascending=<span class="kw">False</span>))</pre></div>
+      </div>
+    </div>
+
+    <!-- Random Forest -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">5. Random Forest Regressor</div>
+          <div class="card-sub">sklearn · RandomForestRegressor</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">ensemble</span>
+          <span class="tag tag-neutral">bagging</span>
+          <span class="tag tag-neutral">robust</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.805</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.328</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.511</strong></div>
+        <div class="metric-chip"><span>Trees</span><strong>100</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestRegressor
+
+model = RandomForestRegressor(
+    n_estimators=<span class="nu">100</span>,
+    max_depth=<span class="nu">None</span>,
+    random_state=<span class="nu">42</span>,
+    n_jobs=<span class="op">-1</span>   <span class="cm"># use all CPU cores</span>
+)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred)):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Gradient Boosting -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">6. Gradient Boosting / XGBoost</div>
+          <div class="card-sub">xgboost · XGBRegressor</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">boosting</span>
+          <span class="tag tag-neutral">state-of-the-art</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.828</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.307</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.481</strong></div>
+        <div class="metric-chip"><span>Trees</span><strong>200</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> xgboost <span class="kw">import</span> XGBRegressor
+
+model = XGBRegressor(
+    n_estimators=<span class="nu">200</span>,
+    learning_rate=<span class="nu">0.1</span>,
+    max_depth=<span class="nu">6</span>,
+    subsample=<span class="nu">0.8</span>,
+    random_state=<span class="nu">42</span>
+)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"RMSE: {np.sqrt(mean_squared_error(y_test, y_pred)):.4f}"</span>)
+
+<span class="cm"># Also available: GradientBoostingRegressor, LGBMRegressor</span></pre></div>
+      </div>
+    </div>
+
+    <!-- SVR -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">7. Support Vector Regression</div>
+          <div class="card-sub">sklearn · SVR</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">kernel trick</span>
+          <span class="tag tag-neutral">small datasets</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.728</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.398</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.603</strong></div>
+        <div class="metric-chip"><span>Kernel</span><strong>RBF</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVR
+
+model = SVR(kernel=<span class="st">'rbf'</span>, C=<span class="nu">1.0</span>, epsilon=<span class="nu">0.1</span>)
+model.fit(X_train, y_train)   <span class="cm"># slow on large datasets</span>
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)
+
+<span class="cm"># Kernels: 'linear', 'poly', 'rbf', 'sigmoid'</span></pre></div>
+      </div>
+    </div>
+
+    <!-- KNN -->
+    <div class="algo-card reg">
+      <div class="card-header">
+        <div>
+          <div class="card-title">8. K-Nearest Neighbors Regression</div>
+          <div class="card-sub">sklearn · KNeighborsRegressor</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-reg">instance-based</span>
+          <span class="tag tag-neutral">no training</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>R² Score</span><strong>0.681</strong></div>
+        <div class="metric-chip"><span>MAE</span><strong>0.419</strong></div>
+        <div class="metric-chip"><span>RMSE</span><strong>0.653</strong></div>
+        <div class="metric-chip"><span>k</span><strong>5</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.neighbors <span class="kw">import</span> KNeighborsRegressor
+
+model = KNeighborsRegressor(n_neighbors=<span class="nu">5</span>, weights=<span class="st">'distance'</span>)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"R²  : {r2_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"MAE : {mean_absolute_error(y_test, y_pred):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+  </div><!-- /algo-grid -->
+</div><!-- /section-regression -->
+
+
+<!-- ========= CLASSIFICATION ========= -->
+<div class="section" id="section-classification">
+  <div class="section-header">
+    <div class="section-label cls">Supervised Learning</div>
+    <h2>Classification Algorithms</h2>
+    <p>Predict discrete class labels. Dataset used: <strong>Breast Cancer Wisconsin</strong> (sklearn) — binary classification (malignant vs benign).</p>
+  </div>
+
+  <div class="algo-grid">
+
+    <!-- Logistic Regression -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">1. Logistic Regression</div>
+          <div class="card-sub">sklearn · LogisticRegression</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">baseline</span>
+          <span class="tag tag-neutral">probabilistic</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>97.4%</strong></div>
+        <div class="metric-chip"><span>Precision</span><strong>0.972</strong></div>
+        <div class="metric-chip"><span>Recall</span><strong>0.979</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.975</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> (accuracy_score, precision_score,
+    recall_score, f1_score, classification_report, confusion_matrix)
+
+data = load_breast_cancer()
+X, y = data.data, data.target
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+scaler = StandardScaler()
+X_train = scaler.fit_transform(X_train)
+X_test  = scaler.transform(X_test)
+
+model = LogisticRegression(max_iter=<span class="nu">1000</span>, random_state=<span class="nu">42</span>)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(classification_report(y_test, y_pred,
+    target_names=data.target_names))
+<span class="fn">print</span>(<span class="st">"Confusion Matrix:\n"</span>, confusion_matrix(y_test, y_pred))</pre></div>
+      </div>
+    </div>
+
+    <!-- Decision Tree Classifier -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">2. Decision Tree Classifier</div>
+          <div class="card-sub">sklearn · DecisionTreeClassifier</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">interpretable</span>
+          <span class="tag tag-neutral">no scaling needed</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>93.9%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.941</strong></div>
+        <div class="metric-chip"><span>ROC-AUC</span><strong>0.937</strong></div>
+        <div class="metric-chip"><span>Depth</span><strong>5</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score
+
+model = DecisionTreeClassifier(max_depth=<span class="nu">5</span>, criterion=<span class="st">'gini'</span>,
+                               random_state=<span class="nu">42</span>)
+model.fit(X_train, y_train)
+y_pred  = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]
+
+<span class="fn">print</span>(<span class="st">f"Accuracy : {accuracy_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"F1       : {f1_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ROC-AUC  : {roc_auc_score(y_test, y_proba):.4f}"</span>)
+
+<span class="cm"># Visualise tree</span>
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> export_text
+<span class="fn">print</span>(export_text(model, feature_names=data.feature_names.tolist()))</pre></div>
+      </div>
+    </div>
+
+    <!-- Random Forest Classifier -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">3. Random Forest Classifier</div>
+          <div class="card-sub">sklearn · RandomForestClassifier</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">ensemble</span>
+          <span class="tag tag-neutral">bagging</span>
+          <span class="tag tag-neutral">robust</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>96.5%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.967</strong></div>
+        <div class="metric-chip"><span>ROC-AUC</span><strong>0.995</strong></div>
+        <div class="metric-chip"><span>Trees</span><strong>100</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+
+model = RandomForestClassifier(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>,
+                               n_jobs=<span class="op">-1</span>)
+model.fit(X_train, y_train)
+y_pred  = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]
+
+<span class="fn">print</span>(classification_report(y_test, y_pred))
+<span class="fn">print</span>(<span class="st">f"ROC-AUC: {roc_auc_score(y_test, y_proba):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- SVM -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">4. Support Vector Machine</div>
+          <div class="card-sub">sklearn · SVC</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">kernel trick</span>
+          <span class="tag tag-neutral">margin maximizer</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>97.4%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.975</strong></div>
+        <div class="metric-chip"><span>ROC-AUC</span><strong>0.997</strong></div>
+        <div class="metric-chip"><span>Kernel</span><strong>RBF</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVC
+
+model = SVC(kernel=<span class="st">'rbf'</span>, C=<span class="nu">1.0</span>, probability=<span class="kw">True</span>,
+            random_state=<span class="nu">42</span>)
+model.fit(X_train, y_train)
+y_pred  = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]
+
+<span class="fn">print</span>(<span class="st">f"Accuracy: {accuracy_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"F1      : {f1_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ROC-AUC : {roc_auc_score(y_test, y_proba):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- KNN Classifier -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">5. K-Nearest Neighbors</div>
+          <div class="card-sub">sklearn · KNeighborsClassifier</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">lazy learner</span>
+          <span class="tag tag-neutral">distance-based</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>95.6%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.959</strong></div>
+        <div class="metric-chip"><span>k</span><strong>5</strong></div>
+        <div class="metric-chip"><span>Distance</span><strong>Euclidean</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.neighbors <span class="kw">import</span> KNeighborsClassifier
+
+<span class="cm"># Find best k</span>
+best_k, best_acc = <span class="nu">1</span>, <span class="nu">0</span>
+<span class="kw">for</span> k <span class="kw">in</span> range(<span class="nu">1</span>, <span class="nu">21</span>):
+    knn = KNeighborsClassifier(n_neighbors=k)
+    knn.fit(X_train, y_train)
+    acc = accuracy_score(y_test, knn.predict(X_test))
+    <span class="kw">if</span> acc > best_acc:
+        best_acc, best_k = acc, k
+
+<span class="fn">print</span>(<span class="st">f"Best k: {best_k}, Accuracy: {best_acc:.4f}"</span>)
+model = KNeighborsClassifier(n_neighbors=best_k)
+model.fit(X_train, y_train)</pre></div>
+      </div>
+    </div>
+
+    <!-- Naive Bayes -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">6. Naive Bayes</div>
+          <div class="card-sub">sklearn · GaussianNB</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">probabilistic</span>
+          <span class="tag tag-neutral">very fast</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>94.7%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.952</strong></div>
+        <div class="metric-chip"><span>Training</span><strong>~1ms</strong></div>
+        <div class="metric-chip"><span>Type</span><strong>Gaussian</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.naive_bayes <span class="kw">import</span> GaussianNB
+
+model = GaussianNB()
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"Accuracy: {accuracy_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"F1      : {f1_score(y_test, y_pred):.4f}"</span>)
+
+<span class="cm"># Variants: MultinomialNB (text), BernoulliNB (binary)</span></pre></div>
+      </div>
+    </div>
+
+    <!-- XGBoost Classifier -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">7. XGBoost Classifier</div>
+          <div class="card-sub">xgboost · XGBClassifier</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">boosting</span>
+          <span class="tag tag-neutral">competition winner</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>97.4%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.975</strong></div>
+        <div class="metric-chip"><span>ROC-AUC</span><strong>0.998</strong></div>
+        <div class="metric-chip"><span>Trees</span><strong>100</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> xgboost <span class="kw">import</span> XGBClassifier
+
+model = XGBClassifier(n_estimators=<span class="nu">100</span>, max_depth=<span class="nu">4</span>,
+                      learning_rate=<span class="nu">0.1</span>, eval_metric=<span class="st">'logloss'</span>,
+                      random_state=<span class="nu">42</span>)
+model.fit(X_train, y_train)
+y_pred  = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, <span class="nu">1</span>]
+
+<span class="fn">print</span>(classification_report(y_test, y_pred))
+<span class="fn">print</span>(<span class="st">f"ROC-AUC: {roc_auc_score(y_test, y_proba):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Neural Network -->
+    <div class="algo-card cls">
+      <div class="card-header">
+        <div>
+          <div class="card-title">8. Neural Network (MLP)</div>
+          <div class="card-sub">sklearn · MLPClassifier</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-cls">deep learning</span>
+          <span class="tag tag-neutral">universal approximator</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Accuracy</span><strong>97.4%</strong></div>
+        <div class="metric-chip"><span>F1</span><strong>0.977</strong></div>
+        <div class="metric-chip"><span>Layers</span><strong>100-50</strong></div>
+        <div class="metric-chip"><span>Activation</span><strong>ReLU</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.neural_network <span class="kw">import</span> MLPClassifier
+
+model = MLPClassifier(
+    hidden_layer_sizes=(<span class="nu">100</span>, <span class="nu">50</span>),
+    activation=<span class="st">'relu'</span>,
+    solver=<span class="st">'adam'</span>,
+    max_iter=<span class="nu">500</span>,
+    random_state=<span class="nu">42</span>
+)
+model.fit(X_train, y_train)
+y_pred = model.predict(X_test)
+
+<span class="fn">print</span>(<span class="st">f"Accuracy: {accuracy_score(y_test, y_pred):.4f}"</span>)
+<span class="fn">print</span>(classification_report(y_test, y_pred))</pre></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /section-classification -->
+
+
+<!-- ========= CLUSTERING ========= -->
+<div class="section" id="section-clustering">
+  <div class="section-header">
+    <div class="section-label clu">Unsupervised Learning</div>
+    <h2>Clustering Algorithms</h2>
+    <p>Discover hidden structure. Dataset used: <strong>Iris</strong> (sklearn) — 3 natural flower clusters, labels used only for evaluation.</p>
+  </div>
+
+  <div class="algo-grid">
+
+    <!-- K-Means -->
+    <div class="algo-card clu">
+      <div class="card-header">
+        <div>
+          <div class="card-title">1. K-Means</div>
+          <div class="card-sub">sklearn · KMeans</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-clu">centroid-based</span>
+          <span class="tag tag-neutral">fast</span>
+          <span class="tag tag-neutral">scalable</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Silhouette</span><strong>0.552</strong></div>
+        <div class="metric-chip"><span>Inertia</span><strong>78.9</strong></div>
+        <div class="metric-chip"><span>ARI</span><strong>0.730</strong></div>
+        <div class="metric-chip"><span>k</span><strong>3</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">from</span> sklearn.cluster <span class="kw">import</span> KMeans
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> (silhouette_score,
+    adjusted_rand_score, davies_bouldin_score)
+
+data = load_iris()
+X, y_true = data.data, data.target
+
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+<span class="cm"># Find optimal k with Elbow method</span>
+inertias = []
+<span class="kw">for</span> k <span class="kw">in</span> range(<span class="nu">1</span>, <span class="nu">11</span>):
+    km = KMeans(n_clusters=k, random_state=<span class="nu">42</span>, n_init=<span class="nu">10</span>)
+    km.fit(X_scaled)
+    inertias.append(km.inertia_)
+
+model = KMeans(n_clusters=<span class="nu">3</span>, random_state=<span class="nu">42</span>, n_init=<span class="nu">10</span>)
+labels = model.fit_predict(X_scaled)
+
+<span class="fn">print</span>(<span class="st">f"Silhouette  : {silhouette_score(X_scaled, labels):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Davies-Bouldin: {davies_bouldin_score(X_scaled, labels):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ARI (vs true): {adjusted_rand_score(y_true, labels):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- DBSCAN -->
+    <div class="algo-card clu">
+      <div class="card-header">
+        <div>
+          <div class="card-title">2. DBSCAN</div>
+          <div class="card-sub">sklearn · DBSCAN</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-clu">density-based</span>
+          <span class="tag tag-neutral">handles noise</span>
+          <span class="tag tag-neutral">arbitrary shapes</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Silhouette</span><strong>0.498</strong></div>
+        <div class="metric-chip"><span>ARI</span><strong>0.568</strong></div>
+        <div class="metric-chip"><span>Noise pts</span><strong>~5%</strong></div>
+        <div class="metric-chip"><span>ε</span><strong>0.5</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.cluster <span class="kw">import</span> DBSCAN
+
+model = DBSCAN(eps=<span class="nu">0.5</span>, min_samples=<span class="nu">5</span>)
+labels = model.fit_predict(X_scaled)
+
+n_clusters = <span class="fn">len</span>(set(labels)) - (<span class="nu">1</span> <span class="kw">if</span> <span class="op">-1</span> <span class="kw">in</span> labels <span class="kw">else</span> <span class="nu">0</span>)
+n_noise    = (labels == <span class="op">-1</span>).sum()
+
+<span class="fn">print</span>(<span class="st">f"Clusters found : {n_clusters}"</span>)
+<span class="fn">print</span>(<span class="st">f"Noise points   : {n_noise}"</span>)
+
+<span class="cm"># Only score non-noise points</span>
+mask = labels != <span class="op">-1</span>
+<span class="kw">if</span> n_clusters > <span class="nu">1</span>:
+    <span class="fn">print</span>(<span class="st">f"Silhouette: {silhouette_score(X_scaled[mask], labels[mask]):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ARI       : {adjusted_rand_score(y_true, labels):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Hierarchical -->
+    <div class="algo-card clu">
+      <div class="card-header">
+        <div>
+          <div class="card-title">3. Hierarchical / Agglomerative</div>
+          <div class="card-sub">sklearn · AgglomerativeClustering</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-clu">dendrogram</span>
+          <span class="tag tag-neutral">no k needed</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Silhouette</span><strong>0.551</strong></div>
+        <div class="metric-chip"><span>ARI</span><strong>0.731</strong></div>
+        <div class="metric-chip"><span>Linkage</span><strong>Ward</strong></div>
+        <div class="metric-chip"><span>k</span><strong>3</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.cluster <span class="kw">import</span> AgglomerativeClustering
+<span class="kw">from</span> scipy.cluster.hierarchy <span class="kw">import</span> dendrogram, linkage
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+<span class="cm"># Plot dendrogram to decide number of clusters</span>
+Z = linkage(X_scaled, method=<span class="st">'ward'</span>)
+fig, ax = plt.subplots(figsize=(<span class="nu">10</span>, <span class="nu">4</span>))
+dendrogram(Z, ax=ax, truncate_mode=<span class="st">'level'</span>, p=<span class="nu">5</span>)
+plt.title(<span class="st">'Hierarchical Clustering Dendrogram'</span>)
+plt.tight_layout(); plt.show()
+
+model = AgglomerativeClustering(n_clusters=<span class="nu">3</span>, linkage=<span class="st">'ward'</span>)
+labels = model.fit_predict(X_scaled)
+
+<span class="fn">print</span>(<span class="st">f"Silhouette: {silhouette_score(X_scaled, labels):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ARI       : {adjusted_rand_score(y_true, labels):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- GMM -->
+    <div class="algo-card clu">
+      <div class="card-header">
+        <div>
+          <div class="card-title">4. Gaussian Mixture Model</div>
+          <div class="card-sub">sklearn · GaussianMixture</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-clu">probabilistic</span>
+          <span class="tag tag-neutral">soft assignments</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Silhouette</span><strong>0.558</strong></div>
+        <div class="metric-chip"><span>ARI</span><strong>0.786</strong></div>
+        <div class="metric-chip"><span>BIC</span><strong>lowest</strong></div>
+        <div class="metric-chip"><span>k</span><strong>3</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.mixture <span class="kw">import</span> GaussianMixture
+
+<span class="cm"># Use BIC to choose number of components</span>
+bics = []
+<span class="kw">for</span> k <span class="kw">in</span> range(<span class="nu">1</span>, <span class="nu">8</span>):
+    gm = GaussianMixture(n_components=k, random_state=<span class="nu">42</span>)
+    gm.fit(X_scaled)
+    bics.append(gm.bic(X_scaled))
+best_k = bics.index(<span class="fn">min</span>(bics)) + <span class="nu">1</span>
+
+model = GaussianMixture(n_components=best_k, random_state=<span class="nu">42</span>)
+labels = model.fit_predict(X_scaled)
+probs  = model.predict_proba(X_scaled)   <span class="cm"># soft assignments</span>
+
+<span class="fn">print</span>(<span class="st">f"Best k (BIC): {best_k}"</span>)
+<span class="fn">print</span>(<span class="st">f"Silhouette  : {silhouette_score(X_scaled, labels):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ARI         : {adjusted_rand_score(y_true, labels):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Mean Shift -->
+    <div class="algo-card clu">
+      <div class="card-header">
+        <div>
+          <div class="card-title">5. Mean Shift</div>
+          <div class="card-sub">sklearn · MeanShift</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-clu">bandwidth-based</span>
+          <span class="tag tag-neutral">auto k</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Silhouette</span><strong>0.542</strong></div>
+        <div class="metric-chip"><span>ARI</span><strong>0.712</strong></div>
+        <div class="metric-chip"><span>Auto k</span><strong>yes</strong></div>
+        <div class="metric-chip"><span>Speed</span><strong>slow O(n²)</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.cluster <span class="kw">import</span> MeanShift, estimate_bandwidth
+
+<span class="cm"># Automatically estimate bandwidth</span>
+bandwidth = estimate_bandwidth(X_scaled, quantile=<span class="nu">0.2</span>)
+
+model = MeanShift(bandwidth=bandwidth, bin_seeding=<span class="kw">True</span>)
+labels = model.fit_predict(X_scaled)
+
+n_clusters = <span class="fn">len</span>(set(labels))
+<span class="fn">print</span>(<span class="st">f"Clusters found: {n_clusters}"</span>)
+<span class="fn">print</span>(<span class="st">f"Silhouette    : {silhouette_score(X_scaled, labels):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ARI           : {adjusted_rand_score(y_true, labels):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Spectral -->
+    <div class="algo-card clu">
+      <div class="card-header">
+        <div>
+          <div class="card-title">6. Spectral Clustering</div>
+          <div class="card-sub">sklearn · SpectralClustering</div>
+        </div>
+        <div class="tags">
+          <span class="tag tag-clu">graph-based</span>
+          <span class="tag tag-neutral">non-convex shapes</span>
+        </div>
+      </div>
+      <div class="metrics-row">
+        <div class="metric-chip"><span>Silhouette</span><strong>0.548</strong></div>
+        <div class="metric-chip"><span>ARI</span><strong>0.745</strong></div>
+        <div class="metric-chip"><span>Affinity</span><strong>RBF</strong></div>
+        <div class="metric-chip"><span>k</span><strong>3</strong></div>
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.cluster <span class="kw">import</span> SpectralClustering
+
+model = SpectralClustering(
+    n_clusters=<span class="nu">3</span>,
+    affinity=<span class="st">'rbf'</span>,
+    gamma=<span class="nu">1.0</span>,
+    random_state=<span class="nu">42</span>
+)
+labels = model.fit_predict(X_scaled)
+
+<span class="fn">print</span>(<span class="st">f"Silhouette: {silhouette_score(X_scaled, labels):.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ARI       : {adjusted_rand_score(y_true, labels):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /section-clustering -->
+
+
+<!-- ========= COMPARISON ========= -->
+<div class="section" id="section-comparison">
+  
+<div class="viz-info">
+  Future Upgrade Idea: Add interactive sliders for hyperparameters like 
+  <strong>max_depth</strong>, <strong>learning_rate</strong>, and 
+  <strong>n_estimators</strong> to create a live ML experimentation playground.
+</div>
+
+<div class="section-header">
+    <div class="section-label cmp">Analysis</div>
+    <h2>Algorithm Comparison</h2>
+    <p>Performance metrics side-by-side. Use this to pick the right algorithm for your task.</p>
+  </div>
+
+  <h3 style="font-family:Syne,sans-serif;margin-bottom:16px;color:var(--reg)">📈 Regression — California Housing</h3>
+  <div class="compare-table-wrap" style="margin-bottom:40px">
+    <table>
+      <thead><tr>
+        <th>Algorithm</th><th>R²</th><th>MAE</th><th>RMSE</th><th>Speed</th><th>Interpretable</th><th>Best for</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Linear Regression</td><td>0.606</td><td>0.531</td><td>0.726</td><td>⚡⚡⚡⚡⚡</td><td>✅ Yes</td><td>Baseline, linear relationships</td></tr>
+        <tr><td>Ridge (L2)</td><td>0.606</td><td>0.531</td><td>0.726</td><td>⚡⚡⚡⚡⚡</td><td>✅ Yes</td><td>Multicollinearity, many features</td></tr>
+        <tr><td>Lasso (L1)</td><td>0.598</td><td>0.536</td><td>0.733</td><td>⚡⚡⚡⚡⚡</td><td>✅ Yes</td><td>Feature selection, sparse data</td></tr>
+        <tr><td>Decision Tree</td><td>0.622</td><td>0.452</td><td>0.712</td><td>⚡⚡⚡⚡</td><td>✅ Yes</td><td>Non-linear, quick prototype</td></tr>
+        <tr><td>Random Forest</td><td>0.805</td><td>0.328</td><td>0.511</td><td>⚡⚡⚡</td><td>⚠️ Partial</td><td>General purpose, robust</td></tr>
+        <tr><td><strong>XGBoost</strong></td><td><strong>0.828</strong></td><td><strong>0.307</strong></td><td><strong>0.481</strong></td><td>⚡⚡⚡</td><td>⚠️ Partial</td><td><strong>Best accuracy, Kaggle</strong></td></tr>
+        <tr><td>SVR</td><td>0.728</td><td>0.398</td><td>0.603</td><td>⚡</td><td>❌ No</td><td>Small datasets, non-linear</td></tr>
+        <tr><td>KNN Regressor</td><td>0.681</td><td>0.419</td><td>0.653</td><td>⚡⚡</td><td>⚠️ Partial</td><td>Low-dim, similar samples matter</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-family:Syne,sans-serif;margin-bottom:16px;color:var(--cls)">🎯 Classification — Breast Cancer</h3>
+  <div class="compare-table-wrap" style="margin-bottom:40px">
+    <table>
+      <thead><tr>
+        <th>Algorithm</th><th>Accuracy</th><th>F1</th><th>ROC-AUC</th><th>Speed</th><th>Interpretable</th><th>Best for</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>Logistic Regression</td><td>97.4%</td><td>0.975</td><td>0.996</td><td>⚡⚡⚡⚡⚡</td><td>✅ Yes</td><td>Baseline, probability output</td></tr>
+        <tr><td>Decision Tree</td><td>93.9%</td><td>0.941</td><td>0.937</td><td>⚡⚡⚡⚡</td><td>✅ Yes</td><td>Rules-based explanation</td></tr>
+        <tr><td>Random Forest</td><td>96.5%</td><td>0.967</td><td>0.995</td><td>⚡⚡⚡</td><td>⚠️ Partial</td><td>General purpose, robust</td></tr>
+        <tr><td>SVM (RBF)</td><td>97.4%</td><td>0.975</td><td>0.997</td><td>⚡⚡</td><td>❌ No</td><td>High-dim, small/medium data</td></tr>
+        <tr><td>KNN</td><td>95.6%</td><td>0.959</td><td>0.981</td><td>⚡⚡</td><td>⚠️ Partial</td><td>Local patterns matter</td></tr>
+        <tr><td>Naive Bayes</td><td>94.7%</td><td>0.952</td><td>0.993</td><td>⚡⚡⚡⚡⚡</td><td>✅ Yes</td><td>Text, very fast baseline</td></tr>
+        <tr><td><strong>XGBoost</strong></td><td><strong>97.4%</strong></td><td><strong>0.975</strong></td><td><strong>0.998</strong></td><td>⚡⚡⚡</td><td>⚠️ Partial</td><td><strong>Best AUC, competition</strong></td></tr>
+        <tr><td>Neural Net (MLP)</td><td>97.4%</td><td>0.977</td><td>0.997</td><td>⚡⚡</td><td>❌ No</td><td>Complex patterns, large data</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3 style="font-family:Syne,sans-serif;margin-bottom:16px;color:var(--clu)">🔵 Clustering — Iris (3 true clusters)</h3>
+  <div class="compare-table-wrap" style="margin-bottom:40px">
+    <table>
+      <thead><tr>
+        <th>Algorithm</th><th>Silhouette↑</th><th>ARI↑</th><th>DB Score↓</th><th>Speed</th><th>Needs k?</th><th>Best for</th>
+      </tr></thead>
+      <tbody>
+        <tr><td>K-Means</td><td>0.552</td><td>0.730</td><td>0.662</td><td>⚡⚡⚡⚡⚡</td><td>✅ Yes</td><td>Round clusters, large data</td></tr>
+        <tr><td>DBSCAN</td><td>0.498</td><td>0.568</td><td>0.812</td><td>⚡⚡⚡⚡</td><td>❌ No</td><td>Noise, arbitrary shapes</td></tr>
+        <tr><td>Agglomerative</td><td>0.551</td><td>0.731</td><td>0.668</td><td>⚡⚡⚡</td><td>Optional</td><td>Dendrograms, unknown k</td></tr>
+        <tr><td><strong>GMM</strong></td><td><strong>0.558</strong></td><td><strong>0.786</strong></td><td><strong>0.641</strong></td><td>⚡⚡⚡</td><td>Optional</td><td><strong>Overlapping clusters, soft assignments</strong></td></tr>
+        <tr><td>Mean Shift</td><td>0.542</td><td>0.712</td><td>0.701</td><td>⚡</td><td>❌ No</td><td>Unknown k, blob-shaped</td></tr>
+        <tr><td>Spectral</td><td>0.548</td><td>0.745</td><td>0.678</td><td>⚡⚡</td><td>✅ Yes</td><td>Non-convex manifold clusters</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;margin-top:16px">
+    <div style="font-family:Syne,sans-serif;font-weight:700;font-size:1rem;margin-bottom:20px;color:var(--accent)">📌 Metrics Quick Reference</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px">
+      <div>
+        <div style="color:var(--reg);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:2px;margin-bottom:10px">REGRESSION</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li><strong>R²</strong> — Proportion of variance explained (0–1, higher = better)</li>
+          <li><strong>MAE</strong> — Mean Absolute Error (same units as target)</li>
+          <li><strong>RMSE</strong> — Root Mean Squared Error (penalises outliers more)</li>
+          <li><strong>MAPE</strong> — Mean Absolute Percentage Error (percentage)</li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--cls);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:2px;margin-bottom:10px">CLASSIFICATION</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li><strong>Accuracy</strong> — % correct predictions (misleading on imbalanced data)</li>
+          <li><strong>Precision</strong> — Of predicted positives, how many are right</li>
+          <li><strong>Recall</strong> — Of actual positives, how many were found</li>
+          <li><strong>F1</strong> — Harmonic mean of Precision & Recall</li>
+          <li><strong>ROC-AUC</strong> — Discrimination ability across thresholds (0.5–1)</li>
+        </ul>
+      </div>
+      <div>
+        <div style="color:var(--clu);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:2px;margin-bottom:10px">CLUSTERING</div>
+        <ul style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li><strong>Silhouette</strong> — Cluster cohesion vs separation (-1 to 1, higher better)</li>
+          <li><strong>ARI</strong> — Agreement with true labels (-1 to 1) if labels known</li>
+          <li><strong>Inertia</strong> — Sum of distances to cluster centroid (K-Means only)</li>
+          <li><strong>Davies-Bouldin</strong> — Ratio of within/between scatter (lower better)</li>
+          <li><strong>BIC/AIC</strong> — Model selection for GMM (lower better)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div><!-- /section-comparison -->
+
+
+<!-- ========= HOW TO RUN ========= -->
+<div class="section" id="section-run">
+  <div class="section-header">
+    <div class="section-label cmp">Setup Guide</div>
+    <h2>How to Run</h2>
+    <p>Get all the code running on your machine in minutes.</p>
+  </div>
+
+  <div class="run-section">
+    <div class="run-title">🐍 Option 1 — Local Python Environment</div>
+    <div class="run-steps">
+      <div class="run-step"><div>
+        <p>Install Python 3.9+ from <strong>python.org</strong> or via Homebrew on Mac.</p>
+        <code>brew install python</code>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Create an isolated virtual environment (recommended).</p>
+        <code>python -m venv mlenv &amp;&amp; source mlenv/bin/activate</code>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Install all required packages with pip.</p>
+        <code>pip install scikit-learn xgboost numpy pandas matplotlib seaborn scipy</code>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Copy any code block from this guide into a <code>.py</code> file and run it.</p>
+        <code>python my_model.py</code>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="run-section" style="margin-top:20px">
+    <div class="run-title">📓 Option 2 — Jupyter Notebook (Recommended)</div>
+    <div class="run-steps">
+      <div class="run-step"><div>
+        <p>Install Jupyter in your virtual environment.</p>
+        <code>pip install jupyter notebook</code>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Launch the notebook server.</p>
+        <code>jupyter notebook</code>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Create a new notebook and paste code cells. Jupyter lets you run cells interactively and see plots inline.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="run-section" style="margin-top:20px">
+    <div class="run-title">☁️ Option 3 — Google Colab (Zero Setup)</div>
+    <div class="run-steps">
+      <div class="run-step"><div>
+        <p>Go to <strong>colab.research.google.com</strong> and sign in with a Google account.</p>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Click <strong>+ New notebook</strong>. All major packages (sklearn, numpy, pandas) are pre-installed. Only XGBoost needs installing:</p>
+        <code>!pip install xgboost</code>
+      </div></div>
+      <div class="run-step"><div>
+        <p>Paste the code from any section, click ▶ to run. Free GPU/TPU available for neural networks under Runtime → Change runtime type.</p>
+      </div></div>
+    </div>
+  </div>
+
+  <div class="run-section" style="margin-top:20px">
+    <div class="run-title">📦 Full requirements.txt</div>
+    <div class="code-block" style="background:var(--code-bg);border-radius:8px;padding:20px;margin-top:12px">
+      <pre style="font-size:13px">scikit-learn>=1.3.0
+xgboost>=2.0.0
+numpy>=1.24.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+scipy>=1.10.0
+jupyter>=1.0.0</pre>
+    </div>
+    <p style="margin-top:12px;color:var(--muted);font-size:0.88rem">Save as <code style="background:var(--code-bg);padding:2px 8px;border-radius:4px;color:var(--accent);font-family:JetBrains Mono,monospace">requirements.txt</code> then run <code style="background:var(--code-bg);padding:2px 8px;border-radius:4px;color:var(--accent);font-family:JetBrains Mono,monospace">pip install -r requirements.txt</code></p>
+  </div>
+</div><!-- /section-run -->
+
+<!-- ========= BEGINNER CONCEPTS ========= -->
+<div class="section" id="section-beginner">
+  <div class="section-header">
+    <div class="section-label" style="color:#0e6eb4">Foundations</div>
+    <h2>Beginner Concepts</h2>
+    <p>Core ideas every ML practitioner must deeply understand before diving into algorithms.</p>
+  </div>
+
+  <div class="concept-grid">
+
+    <!-- Overfitting vs Underfitting -->
+    <div class="concept-card bgn">
+      <div class="concept-icon">🎯</div>
+      <div class="concept-title">Overfitting vs Underfitting</div>
+      <div class="concept-desc">
+        <strong>Overfitting</strong> — the model memorises training data, performing well on it but failing on new data (high variance). <strong>Underfitting</strong> — the model is too simple to capture the pattern (high bias). The goal is to find the sweet spot: a model that generalises.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Signs &amp; Fixes</div>
+        <ul>
+          <li>Overfit: train acc ≫ test acc → add regularisation, more data, dropout</li>
+          <li>Underfit: both train &amp; test acc low → more complex model, more features</li>
+          <li>Use validation curves to diagnose</li>
+          <li>Early stopping halts training before overfitting</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+<span class="cm"># Overfit: unlimited depth memorises training data</span>
+overfit = DecisionTreeClassifier(max_depth=<span class="kw">None</span>, random_state=<span class="nu">42</span>)
+overfit.fit(X_train, y_train)
+<span class="fn">print</span>(<span class="st">f"Overfit  — Train: {accuracy_score(y_train, overfit.predict(X_train)):.3f} | Test: {accuracy_score(y_test, overfit.predict(X_test)):.3f}"</span>)
+
+<span class="cm"># Underfit: depth=1 is too simple</span>
+underfit = DecisionTreeClassifier(max_depth=<span class="nu">1</span>, random_state=<span class="nu">42</span>)
+underfit.fit(X_train, y_train)
+<span class="fn">print</span>(<span class="st">f"Underfit — Train: {accuracy_score(y_train, underfit.predict(X_train)):.3f} | Test: {accuracy_score(y_test, underfit.predict(X_test)):.3f}"</span>)
+
+<span class="cm"># Balanced: depth=5</span>
+balanced = DecisionTreeClassifier(max_depth=<span class="nu">5</span>, random_state=<span class="nu">42</span>)
+balanced.fit(X_train, y_train)
+<span class="fn">print</span>(<span class="st">f"Balanced — Train: {accuracy_score(y_train, balanced.predict(X_train)):.3f} | Test: {accuracy_score(y_test, balanced.predict(X_test)):.3f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Bias-Variance Tradeoff -->
+    <div class="concept-card bgn">
+      <div class="concept-icon">⚖️</div>
+      <div class="concept-title">Bias-Variance Tradeoff</div>
+      <div class="concept-desc">
+        Total error = Bias² + Variance + Irreducible Noise. <strong>Bias</strong> is the error from wrong assumptions (underfitting). <strong>Variance</strong> is sensitivity to fluctuations in training data (overfitting). Reducing one often increases the other — you must trade them off.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Key Intuition</div>
+        <ul>
+          <li>Simple models → high bias, low variance (e.g. linear regression)</li>
+          <li>Complex models → low bias, high variance (e.g. deep trees)</li>
+          <li>Ensemble methods (bagging, boosting) reduce variance/bias respectively</li>
+          <li>More training data reduces variance, not bias</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.tree <span class="kw">import</span> DecisionTreeRegressor
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+
+<span class="cm"># Synthetic regression task</span>
+rng = np.random.RandomState(<span class="nu">42</span>)
+X = rng.uniform(<span class="nu">0</span>, <span class="nu">1</span>, (<span class="nu">200</span>, <span class="nu">1</span>))
+y = np.sin(<span class="nu">2</span> * np.pi * X.ravel()) + rng.normal(<span class="nu">0</span>, <span class="nu">0.2</span>, <span class="nu">200</span>)
+
+<span class="kw">for</span> depth <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">3</span>, <span class="nu">5</span>, <span class="nu">10</span>, <span class="kw">None</span>]:
+    scores = cross_val_score(
+        DecisionTreeRegressor(max_depth=depth, random_state=<span class="nu">42</span>),
+        X, y, cv=<span class="nu">10</span>, scoring=<span class="st">'neg_mean_squared_error'</span>
+    )
+    mse_mean = -scores.mean()
+    mse_std  = scores.std()
+    label = <span class="st">f"depth={depth}"</span> <span class="kw">if</span> depth <span class="kw">else</span> <span class="st">"depth=None"</span>
+    <span class="fn">print</span>(<span class="st">f"{label:12s} → MSE={mse_mean:.4f} ± {mse_std:.4f}  (variance indicator)"</span>)
+
+<span class="cm"># Low depth = high bias (large MSE), low variance (small std)
+# High depth = low bias (low MSE on train), high variance (large std)</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Feature Engineering -->
+    <div class="concept-card bgn">
+      <div class="concept-icon">🔧</div>
+      <div class="concept-title">Feature Engineering</div>
+      <div class="concept-desc">
+        Transforming raw data into informative inputs. Better features often beat better algorithms. Includes: creating polynomial/interaction terms, binning, log-transforms for skewed data, encoding categoricals, and domain-specific derivations.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Common Techniques</div>
+        <ul>
+          <li>Log/sqrt transform skewed numerical features</li>
+          <li>One-hot encode low-cardinality categoricals</li>
+          <li>Target encode high-cardinality categoricals</li>
+          <li>Polynomial features to capture non-linearity</li>
+          <li>Date decomposition: hour, day-of-week, is_weekend</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_california_housing
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> Ridge
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> PolynomialFeatures, StandardScaler
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+
+data = fetch_california_housing()
+X = pd.DataFrame(data.data, columns=data.feature_names)
+y = data.target
+
+<span class="cm"># ── Manual feature engineering ────────────────────</span>
+X[<span class="st">'rooms_per_person'</span>]  = X[<span class="st">'AveRooms'</span>] / X[<span class="st">'AveOccup'</span>].clip(<span class="nu">1</span>)
+X[<span class="st">'log_population'</span>]   = np.log1p(X[<span class="st">'Population'</span>])
+X[<span class="st">'bedroom_ratio'</span>]    = X[<span class="st">'AveBedrms'</span>] / X[<span class="st">'AveRooms'</span>].clip(<span class="nu">0.01</span>)
+
+<span class="cm"># ── Polynomial features via Pipeline ──────────────</span>
+pipe_base = Pipeline([(<span class="st">'scl'</span>, StandardScaler()), (<span class="st">'mdl'</span>, Ridge())])
+pipe_poly = Pipeline([
+    (<span class="st">'scl'</span>, StandardScaler()),
+    (<span class="st">'poly'</span>, PolynomialFeatures(degree=<span class="nu">2</span>, include_bias=<span class="kw">False</span>)),
+    (<span class="st">'mdl'</span>, Ridge(alpha=<span class="nu">1.0</span>))
+])
+
+r2_base = cross_val_score(pipe_base, data.data, y, cv=<span class="nu">5</span>, scoring=<span class="st">'r2'</span>).mean()
+r2_eng  = cross_val_score(pipe_base, X.values, y, cv=<span class="nu">5</span>, scoring=<span class="st">'r2'</span>).mean()
+r2_poly = cross_val_score(pipe_poly, data.data, y, cv=<span class="nu">5</span>, scoring=<span class="st">'r2'</span>).mean()
+
+<span class="fn">print</span>(<span class="st">f"Baseline R²          : {r2_base:.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"+ Manual features R² : {r2_eng:.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"+ Polynomial R²      : {r2_poly:.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Data Leakage -->
+    <div class="concept-card bgn">
+      <div class="concept-icon">🚨</div>
+      <div class="concept-title">Data Leakage</div>
+      <div class="concept-desc">
+        Leakage occurs when information from the test set (or the future) bleeds into training, producing optimistically inflated metrics that collapse in production. The most common mistake is fitting scalers/encoders on the full dataset before splitting.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">How Leakage Happens</div>
+        <ul>
+          <li>Scaling with fit_transform on all data before split</li>
+          <li>Feature derived from the target (target encoding without CV)</li>
+          <li>Time-series: using future data to predict the past</li>
+          <li>Duplicate rows spanning train/test splits</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+<span class="cm"># ❌  LEAKY — scaler sees test data statistics during fit</span>
+scaler_leak = StandardScaler().fit(X)          <span class="cm"># fit on ALL data!</span>
+model_leak = LogisticRegression(max_iter=<span class="nu">1000</span>)
+model_leak.fit(scaler_leak.transform(X_train), y_train)
+acc_leak = accuracy_score(y_test, model_leak.predict(scaler_leak.transform(X_test)))
+
+<span class="cm"># ✅  CORRECT — scaler only sees training statistics</span>
+scaler_ok = StandardScaler().fit(X_train)      <span class="cm"># fit on TRAIN only!</span>
+model_ok = LogisticRegression(max_iter=<span class="nu">1000</span>)
+model_ok.fit(scaler_ok.transform(X_train), y_train)
+acc_ok = accuracy_score(y_test, model_ok.predict(scaler_ok.transform(X_test)))
+
+<span class="fn">print</span>(<span class="st">f"Leaky accuracy  : {acc_leak:.4f}  ← artificially inflated"</span>)
+<span class="fn">print</span>(<span class="st">f"Correct accuracy: {acc_ok:.4f}  ← honest estimate"</span>)
+
+<span class="cm"># Best practice: always use Pipeline so leakage is impossible</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Cross-Validation -->
+    <div class="concept-card bgn">
+      <div class="concept-icon">🔄</div>
+      <div class="concept-title">Cross-Validation</div>
+      <div class="concept-desc">
+        A technique to evaluate models on all data without leakage. K-Fold splits data into k equal folds; each fold serves as the test set once. The mean score across folds is a robust, unbiased estimate of generalisation performance.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Variants</div>
+        <ul>
+          <li>K-Fold — standard, use k=5 or k=10</li>
+          <li>Stratified K-Fold — preserves class ratios (for classification)</li>
+          <li>Leave-One-Out (LOO) — k=n, expensive but thorough</li>
+          <li>TimeSeriesSplit — respects temporal order</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> (
+    cross_val_score, StratifiedKFold, cross_validate)
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+
+<span class="cm"># Use a Pipeline so preprocessing is re-fit inside each fold (no leakage)</span>
+pipe = Pipeline([
+    (<span class="st">'scaler'</span>, StandardScaler()),
+    (<span class="st">'clf'</span>, RandomForestClassifier(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>))
+])
+
+<span class="cm"># Stratified 10-fold — respects class imbalance</span>
+cv = StratifiedKFold(n_splits=<span class="nu">10</span>, shuffle=<span class="kw">True</span>, random_state=<span class="nu">42</span>)
+
+<span class="cm"># Multiple metrics in one pass</span>
+results = cross_validate(pipe, X, y, cv=cv,
+    scoring=[<span class="st">'accuracy'</span>, <span class="st">'f1'</span>, <span class="st">'roc_auc'</span>],
+    return_train_score=<span class="kw">True</span>)
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="fn">print</span>(<span class="st">f"Accuracy : {results['test_accuracy'].mean():.4f} ± {results['test_accuracy'].std():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"F1       : {results['test_f1'].mean():.4f} ± {results['test_f1'].std():.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"ROC-AUC  : {results['test_roc_auc'].mean():.4f} ± {results['test_roc_auc'].std():.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- Pipelines -->
+    <div class="concept-card bgn">
+      <div class="concept-icon">🔗</div>
+      <div class="concept-title">Pipelines</div>
+      <div class="concept-desc">
+        A Pipeline chains preprocessing and modelling steps into one object. This prevents leakage (transformers are fit inside each CV fold), makes deployment trivial (one object to pickle), and enables hyperparameter search over the full workflow.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Why Always Use Pipelines</div>
+        <ul>
+          <li>Eliminates data leakage in cross-validation automatically</li>
+          <li>Single .fit() / .predict() call covers all steps</li>
+          <li>param_grid can tune any step: clf__n_estimators</li>
+          <li>One pickle = entire reproducible workflow</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> GradientBoostingClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> GridSearchCV, StratifiedKFold
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+
+pipe = Pipeline([
+    (<span class="st">'scaler'</span>, StandardScaler()),
+    (<span class="st">'pca'</span>,    PCA()),                        <span class="cm"># optional dim reduction</span>
+    (<span class="st">'clf'</span>,   GradientBoostingClassifier(random_state=<span class="nu">42</span>))
+])
+
+<span class="cm"># Grid search across the full pipeline — zero leakage</span>
+param_grid = {
+    <span class="st">'pca__n_components'</span>: [<span class="nu">10</span>, <span class="nu">20</span>, <span class="kw">None</span>],
+    <span class="st">'clf__n_estimators'</span>: [<span class="nu">50</span>, <span class="nu">100</span>],
+    <span class="st">'clf__learning_rate'</span>: [<span class="nu">0.05</span>, <span class="nu">0.1</span>],
+}
+
+gs = GridSearchCV(pipe, param_grid, cv=StratifiedKFold(<span class="nu">5</span>),
+                  scoring=<span class="st">'roc_auc'</span>, n_jobs=<span class="op">-1</span>)
+gs.fit(X, y)
+
+<span class="fn">print</span>(<span class="st">f"Best ROC-AUC : {gs.best_score_:.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Best params  : {gs.best_params_}"</span>)
+
+<span class="cm"># Deploy: single object with full preprocessing baked in</span>
+best_pipe = gs.best_estimator_</pre></div>
+      </div>
+    </div>
+
+  </div><!-- /concept-grid -->
+</div><!-- /section-beginner -->
+
+
+<!-- ========= ADVANCED TOPICS ========= -->
+<div class="section" id="section-advanced">
+  <div class="section-header">
+    <div class="section-label" style="color:#b42878">Advanced Topics</div>
+    <h2>Advanced ML Techniques</h2>
+    <p>Dimensionality reduction, modern boosting libraries, sequence models, NLP, deep learning architectures, AutoML, and Explainable AI.</p>
+  </div>
+
+  <div class="concept-grid">
+
+    <!-- PCA -->
+    <div class="concept-card adv">
+      <div class="concept-icon">📐</div>
+      <div class="concept-title">PCA — Principal Component Analysis</div>
+      <div class="concept-desc">
+        Linear dimensionality reduction that finds orthogonal axes (principal components) of maximum variance. Reduces noise, removes correlated features, and speeds up downstream models. Components are ranked by explained variance ratio.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Key Facts</div>
+        <ul>
+          <li>Always standardise before PCA (variance-sensitive)</li>
+          <li>Choose n_components so cumulative explained variance ≥ 95%</li>
+          <li>Loses interpretability — components are linear combinations</li>
+          <li>Great pre-step for SVMs and logistic regression</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+X_scaled = StandardScaler().fit_transform(X)
+
+<span class="cm"># Fit PCA on all 30 features</span>
+pca = PCA()
+pca.fit(X_scaled)
+
+<span class="cm"># Find minimum components for 95% variance</span>
+cumvar = np.cumsum(pca.explained_variance_ratio_)
+n_95 = np.searchsorted(cumvar, <span class="nu">0.95</span>) + <span class="nu">1</span>
+<span class="fn">print</span>(<span class="st">f"Components for 95% variance: {n_95} / {X.shape[1]}"</span>)
+
+<span class="cm"># Reduce and reconstruct</span>
+pca_k = PCA(n_components=n_95)
+X_reduced     = pca_k.fit_transform(X_scaled)      <span class="cm"># 569 × n_95</span>
+X_reconstructed = pca_k.inverse_transform(X_reduced) <span class="cm"># back to 569 × 30</span>
+
+recon_error = np.mean((X_scaled - X_reconstructed)**<span class="nu">2</span>)
+<span class="fn">print</span>(<span class="st">f"Reconstruction MSE: {recon_error:.6f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Shape reduced: {X_reduced.shape}"</span>)
+
+<span class="cm"># Top component loadings</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+feat = load_breast_cancer().feature_names
+pc1 = pd.Series(pca.components_[<span class="nu">0</span>], index=feat).abs().sort_values(ascending=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="st">"\nTop 5 features in PC1:\n"</span>, pc1.head())</pre></div>
+      </div>
+    </div>
+
+    <!-- t-SNE / UMAP -->
+    <div class="concept-card adv">
+      <div class="concept-icon">🌌</div>
+      <div class="concept-title">t-SNE &amp; UMAP — Non-linear Visualisation</div>
+      <div class="concept-desc">
+        Non-linear dimensionality reduction for 2D/3D <em>visualisation only</em>. <strong>t-SNE</strong> preserves local neighbourhood structure; <strong>UMAP</strong> is faster and better preserves global structure. Never use these as features for downstream models.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">When to Use</div>
+        <ul>
+          <li>Explore class separability before modelling</li>
+          <li>Visualise embedding spaces (word embeddings, neural activations)</li>
+          <li>UMAP is 10–100× faster than t-SNE on large datasets</li>
+          <li>Perplexity (t-SNE) / n_neighbors (UMAP) controls local vs global</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_digits
+<span class="kw">from</span> sklearn.manifold <span class="kw">import</span> TSNE
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+X, y = load_digits(return_X_y=<span class="kw">True</span>)
+X_scaled = StandardScaler().fit_transform(X)
+
+<span class="cm"># ── t-SNE (sklearn) ────────────────────────────────</span>
+tsne = TSNE(n_components=<span class="nu">2</span>, perplexity=<span class="nu">30</span>, random_state=<span class="nu">42</span>,
+            n_iter=<span class="nu">500</span>, learning_rate=<span class="st">'auto'</span>)
+X_tsne = tsne.fit_transform(X_scaled)
+
+fig, ax = plt.subplots(figsize=(<span class="nu">8</span>, <span class="nu">6</span>))
+scatter = ax.scatter(X_tsne[:, <span class="nu">0</span>], X_tsne[:, <span class="nu">1</span>],
+                     c=y, cmap=<span class="st">'tab10'</span>, s=<span class="nu">10</span>, alpha=<span class="nu">0.7</span>)
+plt.colorbar(scatter, ax=ax, label=<span class="st">'Digit class'</span>)
+ax.set_title(<span class="st">'t-SNE of Digits dataset'</span>); plt.tight_layout(); plt.show()
+
+<span class="cm"># ── UMAP (requires: pip install umap-learn) ─────────</span>
+<span class="cm"># import umap</span>
+<span class="cm"># reducer = umap.UMAP(n_components=2, n_neighbors=15, min_dist=0.1, random_state=42)</span>
+<span class="cm"># X_umap = reducer.fit_transform(X_scaled)</span>
+<span class="cm"># ax.scatter(X_umap[:, 0], X_umap[:, 1], c=y, cmap='tab10', s=10)</span></pre></div>
+      </div>
+    </div>
+
+    <!-- LightGBM / CatBoost -->
+    <div class="concept-card adv">
+      <div class="concept-icon">⚡</div>
+      <div class="concept-title">LightGBM &amp; CatBoost</div>
+      <div class="concept-desc">
+        Modern gradient boosting frameworks that outperform vanilla XGBoost in speed and often accuracy. <strong>LightGBM</strong> uses leaf-wise tree growth and histogram binning for 10–100× speedup. <strong>CatBoost</strong> handles categorical features natively with ordered boosting.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Choosing Between Them</div>
+        <ul>
+          <li>LightGBM — fastest, best for large datasets (&gt;100k rows)</li>
+          <li>CatBoost — best with many categorical features, no encoding needed</li>
+          <li>XGBoost — most mature, widest platform support</li>
+          <li>All three support GPU training and early stopping</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="cm"># pip install lightgbm catboost</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split, cross_val_score
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> roc_auc_score
+<span class="kw">import</span> lightgbm <span class="kw">as</span> lgb
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+<span class="cm"># ── LightGBM ───────────────────────────────────────</span>
+lgbm = lgb.LGBMClassifier(
+    n_estimators=<span class="nu">300</span>, learning_rate=<span class="nu">0.05</span>,
+    num_leaves=<span class="nu">31</span>, min_child_samples=<span class="nu">20</span>,
+    subsample=<span class="nu">0.8</span>, colsample_bytree=<span class="nu">0.8</span>,
+    random_state=<span class="nu">42</span>, verbose=<span class="op">-1</span>
+)
+lgbm.fit(X_train, y_train,
+         eval_set=[(X_test, y_test)],
+         callbacks=[lgb.early_stopping(<span class="nu">30</span>, verbose=<span class="kw">False</span>)])
+
+auc = roc_auc_score(y_test, lgbm.predict_proba(X_test)[:, <span class="nu">1</span>])
+<span class="fn">print</span>(<span class="st">f"LightGBM ROC-AUC : {auc:.4f}  (best iter: {lgbm.best_iteration_})"</span>)
+
+<span class="cm"># ── CatBoost ───────────────────────────────────────</span>
+<span class="cm"># from catboost import CatBoostClassifier</span>
+<span class="cm"># cb = CatBoostClassifier(iterations=300, learning_rate=0.05,</span>
+<span class="cm">#                         depth=6, random_state=42, verbose=0)</span>
+<span class="cm"># cb.fit(X_train, y_train, eval_set=(X_test, y_test), early_stopping_rounds=30)</span>
+<span class="cm"># print(f"CatBoost ROC-AUC: {roc_auc_score(y_test, cb.predict_proba(X_test)[:, 1]):.4f}")</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Time Series -->
+    <div class="concept-card adv">
+      <div class="concept-icon">📈</div>
+      <div class="concept-title">Time Series Models</div>
+      <div class="concept-desc">
+        Sequential data where temporal order matters. Classical methods: ARIMA (auto-regressive integrated moving average), Exponential Smoothing. Modern: tree-based models with lag features, and neural approaches like LSTMs and Temporal Fusion Transformers.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Key Concepts</div>
+        <ul>
+          <li>Stationarity: constant mean/variance — required for ARIMA</li>
+          <li>Lag features turn time series into tabular ML problem</li>
+          <li>TimeSeriesSplit for honest CV (never shuffle!)</li>
+          <li>Decompose into trend + seasonality + residual</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> GradientBoostingRegressor
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> TimeSeriesSplit
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> mean_absolute_error
+
+<span class="cm"># Synthetic seasonal time series</span>
+np.random.seed(<span class="nu">42</span>)
+n = <span class="nu">365</span>
+t = np.arange(n)
+y = (<span class="nu">10</span> + <span class="nu">0.05</span>*t                        <span class="cm"># trend</span>
+     + <span class="nu">5</span> * np.sin(<span class="nu">2</span>*np.pi*t/<span class="nu">7</span>)           <span class="cm"># weekly seasonality</span>
+     + np.random.normal(<span class="nu">0</span>, <span class="nu">1</span>, n))       <span class="cm"># noise</span>
+
+<span class="cm"># Feature engineering: lag + rolling window</span>
+df = pd.DataFrame({<span class="st">'y'</span>: y})
+<span class="kw">for</span> lag <span class="kw">in</span> [<span class="nu">1</span>, <span class="nu">2</span>, <span class="nu">3</span>, <span class="nu">7</span>, <span class="nu">14</span>]:
+    df[<span class="st">f'lag_{lag}'</span>] = df[<span class="st">'y'</span>].shift(lag)
+df[<span class="st">'rolling_mean_7'</span>] = df[<span class="st">'y'</span>].shift(<span class="nu">1</span>).rolling(<span class="nu">7</span>).mean()
+df[<span class="st">'rolling_std_7'</span>]  = df[<span class="st">'y'</span>].shift(<span class="nu">1</span>).rolling(<span class="nu">7</span>).std()
+df[<span class="st">'day_of_week'</span>]   = t % <span class="nu">7</span>
+df.dropna(inplace=<span class="kw">True</span>)
+
+X_ts = df.drop(<span class="st">'y'</span>, axis=<span class="nu">1</span>).values
+y_ts = df[<span class="st">'y'</span>].values
+
+<span class="cm"># TimeSeriesSplit — never shuffle temporal data</span>
+tscv = TimeSeriesSplit(n_splits=<span class="nu">5</span>)
+maes = []
+<span class="kw">for</span> tr, te <span class="kw">in</span> tscv.split(X_ts):
+    m = GradientBoostingRegressor(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>)
+    m.fit(X_ts[tr], y_ts[tr])
+    maes.append(mean_absolute_error(y_ts[te], m.predict(X_ts[te])))
+
+<span class="fn">print</span>(<span class="st">f"Time-series CV MAE: {np.mean(maes):.4f} ± {np.std(maes):.4f}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- NLP Basics -->
+    <div class="concept-card adv">
+      <div class="concept-icon">📝</div>
+      <div class="concept-title">NLP Basics</div>
+      <div class="concept-desc">
+        Natural Language Processing converts text to numeric features for ML. The pipeline: clean → tokenise → vectorise (TF-IDF, word embeddings) → model. TF-IDF is the classical baseline; embeddings (Word2Vec, GloVe, sentence-transformers) capture semantics.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Core Techniques</div>
+        <ul>
+          <li>TF-IDF — term frequency × inverse document frequency</li>
+          <li>n-grams — bigrams/trigrams capture phrases</li>
+          <li>Sentence transformers — modern contextual embeddings</li>
+          <li>Pipeline: clean → tokenise → vectorise → classify</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_20newsgroups
+<span class="kw">from</span> sklearn.feature_extraction.text <span class="kw">import</span> TfidfVectorizer
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.pipeline <span class="kw">import</span> Pipeline
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> classification_report
+
+<span class="cm"># 4-class news classification (subset for speed)</span>
+cats = [<span class="st">'sci.med'</span>, <span class="st">'sci.space'</span>, <span class="st">'rec.sport.hockey'</span>, <span class="st">'talk.politics.guns'</span>]
+train = fetch_20newsgroups(subset=<span class="st">'train'</span>, categories=cats, remove=(<span class="st">'headers'</span>,<span class="st">'footers'</span>,<span class="st">'quotes'</span>))
+test  = fetch_20newsgroups(subset=<span class="st">'test'</span>,  categories=cats, remove=(<span class="st">'headers'</span>,<span class="st">'footers'</span>,<span class="st">'quotes'</span>))
+
+<span class="cm"># TF-IDF + Logistic Regression pipeline</span>
+pipe = Pipeline([
+    (<span class="st">'tfidf'</span>, TfidfVectorizer(
+        max_features=<span class="nu">20000</span>,
+        ngram_range=(<span class="nu">1</span>, <span class="nu">2</span>),    <span class="cm"># unigrams + bigrams</span>
+        sublinear_tf=<span class="kw">True</span>,      <span class="cm"># log(1+tf) dampens frequent terms</span>
+        min_df=<span class="nu">2</span>
+    )),
+    (<span class="st">'clf'</span>, LogisticRegression(C=<span class="nu">5.0</span>, max_iter=<span class="nu">1000</span>, random_state=<span class="nu">42</span>))
+])
+
+pipe.fit(train.data, train.target)
+y_pred = pipe.predict(test.data)
+<span class="fn">print</span>(classification_report(test.target, y_pred, target_names=cats))
+
+<span class="cm"># Top TF-IDF features per class</span>
+feat_names = pipe.named_steps[<span class="st">'tfidf'</span>].get_feature_names_out()
+coef = pipe.named_steps[<span class="st">'clf'</span>].coef_
+<span class="kw">for</span> i, cat <span class="kw">in</span> enumerate(cats):
+    top = feat_names[coef[i].argsort()[<span class="op">-5</span>:]]
+    <span class="fn">print</span>(<span class="st">f"{cat}: {list(top)}"</span>)</pre></div>
+      </div>
+    </div>
+
+    <!-- CNNs / RNNs -->
+    <div class="concept-card adv">
+      <div class="concept-icon">🧠</div>
+      <div class="concept-title">CNNs &amp; RNNs</div>
+      <div class="concept-desc">
+        <strong>CNNs</strong> (Convolutional Neural Networks) use local filters to detect spatial patterns — ideal for images. <strong>RNNs</strong> (Recurrent Neural Networks) maintain hidden state across sequence steps — ideal for time series and text. LSTMs/GRUs solve RNN vanishing-gradient issues.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Architecture Summary</div>
+        <ul>
+          <li>CNN: Conv → ReLU → Pool → Flatten → Dense</li>
+          <li>RNN/LSTM: sequence in → hidden state → output</li>
+          <li>1D-CNN often faster than LSTM for sequences</li>
+          <li>Requires PyTorch or TensorFlow/Keras</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="cm"># ── CNN for image classification (Keras) ───────────</span>
+<span class="cm"># pip install tensorflow  or  pip install torch torchvision</span>
+
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_digits
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> LabelBinarizer
+
+X, y = load_digits(return_X_y=<span class="kw">True</span>)
+X = X.reshape(<span class="op">-1</span>, <span class="nu">8</span>, <span class="nu">8</span>, <span class="nu">1</span>) / <span class="nu">16.0</span>   <span class="cm"># normalise + add channel dim</span>
+lb = LabelBinarizer()
+y_onehot = lb.fit_transform(y)
+X_tr, X_te, y_tr, y_te = train_test_split(X, y_onehot, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+<span class="kw">try</span>:
+    <span class="kw">import</span> tensorflow <span class="kw">as</span> tf
+    model = tf.keras.Sequential([
+        tf.keras.layers.Conv2D(<span class="nu">32</span>, (<span class="nu">3</span>,<span class="nu">3</span>), activation=<span class="st">'relu'</span>, padding=<span class="st">'same'</span>),
+        tf.keras.layers.MaxPooling2D((<span class="nu">2</span>,<span class="nu">2</span>)),
+        tf.keras.layers.Conv2D(<span class="nu">64</span>, (<span class="nu">3</span>,<span class="nu">3</span>), activation=<span class="st">'relu'</span>, padding=<span class="st">'same'</span>),
+        tf.keras.layers.GlobalAveragePooling2D(),
+        tf.keras.layers.Dense(<span class="nu">10</span>, activation=<span class="st">'softmax'</span>)
+    ])
+    model.compile(optimizer=<span class="st">'adam'</span>, loss=<span class="st">'categorical_crossentropy'</span>, metrics=[<span class="st">'accuracy'</span>])
+    history = model.fit(X_tr, y_tr, epochs=<span class="nu">15</span>, batch_size=<span class="nu">32</span>,
+                        validation_split=<span class="nu">0.1</span>, verbose=<span class="nu">0</span>)
+    loss, acc = model.evaluate(X_te, y_te, verbose=<span class="nu">0</span>)
+    <span class="fn">print</span>(<span class="st">f"CNN Test accuracy: {acc:.4f}"</span>)
+<span class="kw">except</span> ImportError:
+    <span class="fn">print</span>(<span class="st">"TensorFlow not installed — run: pip install tensorflow"</span>)
+
+<span class="cm"># ── LSTM for sequences (concept skeleton) ──────────
+# model = tf.keras.Sequential([
+#     tf.keras.layers.LSTM(64, return_sequences=True, input_shape=(T, features)),
+#     tf.keras.layers.LSTM(32),
+#     tf.keras.layers.Dense(1)
+# ])</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Transformers -->
+    <div class="concept-card adv">
+      <div class="concept-icon">🤖</div>
+      <div class="concept-title">Transformers</div>
+      <div class="concept-desc">
+        The self-attention mechanism allows every token to attend to every other token, solving long-range dependency limitations of RNNs. Transformers power BERT, GPT, and ViT. HuggingFace 🤗 makes fine-tuning pre-trained models practical in few lines.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Practical Entry Points</div>
+        <ul>
+          <li>Text classification: fine-tune distilbert-base-uncased</li>
+          <li>Feature extraction: sentence-transformers for embeddings</li>
+          <li>Zero-shot: pipeline("zero-shot-classification")</li>
+          <li>Pre-trained = minimal labelled data needed</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="cm"># pip install transformers sentence-transformers torch</span>
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> fetch_20newsgroups
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> accuracy_score
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+cats = [<span class="st">'sci.med'</span>, <span class="st">'sci.space'</span>, <span class="st">'rec.sport.hockey'</span>]
+train = fetch_20newsgroups(subset=<span class="st">'train'</span>, categories=cats,
+        remove=(<span class="st">'headers'</span>,<span class="st">'footers'</span>,<span class="st">'quotes'</span>))
+test  = fetch_20newsgroups(subset=<span class="st">'test'</span>,  categories=cats,
+        remove=(<span class="st">'headers'</span>,<span class="st">'footers'</span>,<span class="st">'quotes'</span>))
+
+<span class="kw">try</span>:
+    <span class="kw">from</span> sentence_transformers <span class="kw">import</span> SentenceTransformer
+    <span class="cm"># all-MiniLM-L6-v2: fast, high-quality embeddings (384-dim)</span>
+    encoder = SentenceTransformer(<span class="st">'all-MiniLM-L6-v2'</span>)
+    X_train_emb = encoder.encode(train.data[:], show_progress_bar=<span class="kw">False</span>, batch_size=<span class="nu">64</span>)
+    X_test_emb  = encoder.encode(test.data[:],  show_progress_bar=<span class="kw">False</span>, batch_size=<span class="nu">64</span>)
+    clf = LogisticRegression(max_iter=<span class="nu">500</span>, random_state=<span class="nu">42</span>)
+    clf.fit(X_train_emb, train.target)
+    acc = accuracy_score(test.target, clf.predict(X_test_emb))
+    <span class="fn">print</span>(<span class="st">f"Transformer embeddings + LR accuracy: {acc:.4f}"</span>)
+<span class="kw">except</span> ImportError:
+    <span class="fn">print</span>(<span class="st">"Run: pip install sentence-transformers"</span>)
+
+<span class="cm"># ── Zero-shot classification (no training data needed) ─────
+# from transformers import pipeline
+# zs = pipeline("zero-shot-classification", model="facebook/bart-large-mnli")
+# result = zs("NASA launches new rocket to orbit", candidate_labels=cats)
+# print(result['labels'][0])</span></pre></div>
+      </div>
+    </div>
+
+    <!-- AutoML -->
+    <div class="concept-card adv">
+      <div class="concept-icon">🤖</div>
+      <div class="concept-title">AutoML</div>
+      <div class="concept-desc">
+        Automated Machine Learning searches over algorithm families, hyperparameters, and preprocessing steps automatically. Popular libraries: <strong>TPOT</strong>, <strong>auto-sklearn</strong>, <strong>H2O AutoML</strong>, and <strong>Optuna</strong> for general hyperparameter optimisation.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">Use Cases</div>
+        <ul>
+          <li>Quickly find strong baselines on new datasets</li>
+          <li>Hyperparameter search: grid, random, Bayesian (Optuna)</li>
+          <li>Bayesian optimisation is far more efficient than grid search</li>
+          <li>Still need domain knowledge for feature engineering</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="cm"># pip install optuna</span>
+<span class="kw">import</span> optuna
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> GradientBoostingClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score
+
+optuna.logging.set_verbosity(optuna.logging.WARNING)
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+
+<span class="kw">def</span> <span class="fn">objective</span>(trial):
+    params = {
+        <span class="st">'n_estimators'</span>:  trial.suggest_int(<span class="st">'n_estimators'</span>, <span class="nu">50</span>, <span class="nu">400</span>),
+        <span class="st">'learning_rate'</span>: trial.suggest_float(<span class="st">'learning_rate'</span>, <span class="nu">0.01</span>, <span class="nu">0.3</span>, log=<span class="kw">True</span>),
+        <span class="st">'max_depth'</span>:     trial.suggest_int(<span class="st">'max_depth'</span>, <span class="nu">2</span>, <span class="nu">8</span>),
+        <span class="st">'subsample'</span>:     trial.suggest_float(<span class="st">'subsample'</span>, <span class="nu">0.6</span>, <span class="nu">1.0</span>),
+        <span class="st">'min_samples_leaf'</span>: trial.suggest_int(<span class="st">'min_samples_leaf'</span>, <span class="nu">1</span>, <span class="nu">20</span>),
+    }
+    model = GradientBoostingClassifier(**params, random_state=<span class="nu">42</span>)
+    return cross_val_score(model, X, y, cv=<span class="nu">5</span>, scoring=<span class="st">'roc_auc'</span>).mean()
+
+study = optuna.create_study(direction=<span class="st">'maximize'</span>)
+study.optimize(objective, n_trials=<span class="nu">50</span>, show_progress_bar=<span class="kw">False</span>)
+
+<span class="fn">print</span>(<span class="st">f"Best ROC-AUC : {study.best_value:.4f}"</span>)
+<span class="fn">print</span>(<span class="st">f"Best params  : {study.best_params}"</span>)
+
+<span class="cm"># Retrain final model on full data
+best_model = GradientBoostingClassifier(**study.best_params, random_state=42)
+best_model.fit(X, y)</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Explainable AI -->
+    <div class="concept-card adv">
+      <div class="concept-icon">🔍</div>
+      <div class="concept-title">Explainable AI (SHAP)</div>
+      <div class="concept-desc">
+        SHAP (SHapley Additive exPlanations) assigns each feature a contribution value for every prediction using game theory. It's the gold standard for model interpretability — works on any model and produces consistent, locally accurate explanations.
+      </div>
+      <div class="concept-key">
+        <div class="concept-key-title">SHAP Plot Types</div>
+        <ul>
+          <li>Summary plot — feature importance + direction across dataset</li>
+          <li>Force plot — single prediction breakdown</li>
+          <li>Waterfall — cumulative feature contributions</li>
+          <li>Dependence plot — feature effect + interaction</li>
+        </ul>
+      </div>
+      <div class="code-block" style="margin-top:16px;border-radius:10px;overflow:hidden">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="cm"># pip install shap</span>
+<span class="kw">import</span> shap
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+
+data = load_breast_cancer()
+X, y = data.data, data.target
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>)
+
+model = RandomForestClassifier(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>)
+model.fit(X_train, y_train)
+
+<span class="cm"># ── SHAP TreeExplainer (fast for tree models) ──────</span>
+explainer = shap.TreeExplainer(model)
+shap_values = explainer.shap_values(X_test)   <span class="cm"># shape: (n_samples, n_features, n_classes)</span>
+
+<span class="cm"># Global feature importance (mean |SHAP|)</span>
+mean_shap = np.abs(shap_values[<span class="nu">1</span>]).mean(axis=<span class="nu">0</span>)
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+importance = pd.Series(mean_shap, index=data.feature_names).sort_values(ascending=<span class="kw">False</span>)
+<span class="fn">print</span>(<span class="st">"Top 5 features by mean |SHAP|:"</span>)
+<span class="fn">print</span>(importance.head())
+
+<span class="cm"># ── Visualise (run in Jupyter) ─────────────────────
+# shap.summary_plot(shap_values[1], X_test, feature_names=data.feature_names)
+# shap.waterfall_plot(shap.Explanation(values=shap_values[1][0],
+#     base_values=explainer.expected_value[1], data=X_test[0],
+#     feature_names=data.feature_names))</span></pre></div>
+      </div>
+    </div>
+
+  </div><!-- /concept-grid -->
+
+<div class="concept-card adv">
+  <div class="concept-icon">⚙️</div>
+  <div class="concept-title">Hyperparameter Optimization with Optuna</div>
+  <div class="concept-desc">
+    Optuna automates hyperparameter tuning using intelligent search strategies
+    like Bayesian Optimization and pruning. Instead of manually testing values,
+    Optuna finds better-performing model configurations efficiently.
+  </div>
+
+  <div class="concept-key">
+    <div class="concept-key-title">Key Benefits</div>
+    <ul>
+      <li>Automated hyperparameter search</li>
+      <li>Efficient trial pruning</li>
+      <li>Better model performance</li>
+      <li>Works with sklearn, XGBoost, LightGBM, PyTorch</li>
+    </ul>
+  </div>
+
+  <div class="code-block" style="margin-top:18px;border-radius:12px;overflow:hidden;">
+    <button class="code-toggle" onclick="toggleCode(this)">
+      <span class="arrow">▶</span> Show Optuna Example
+    </button>
+
+    <div class="code-content">
+<pre><span class="kw">import</span> optuna
+<span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> GradientBoostingClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> cross_val_score, StratifiedKFold
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+
+cv = StratifiedKFold(
+    n_splits=<span class="nu">5</span>,
+    shuffle=<span class="kw">True</span>,
+    random_state=<span class="nu">42</span>
+)
+
+<span class="kw">def</span> <span class="fn">objective</span>(trial):
+    params = {
+        <span class="st">'n_estimators'</span>: trial.suggest_int(<span class="st">'n_estimators'</span>, <span class="nu">50</span>, <span class="nu">400</span>),
+        <span class="st">'learning_rate'</span>: trial.suggest_float(<span class="st">'learning_rate'</span>, <span class="nu">0.01</span>, <span class="nu">0.3</span>, log=<span class="kw">True</span>),
+        <span class="st">'max_depth'</span>: trial.suggest_int(<span class="st">'max_depth'</span>, <span class="nu">2</span>, <span class="nu">8</span>),
+        <span class="st">'subsample'</span>: trial.suggest_float(<span class="st">'subsample'</span>, <span class="nu">0.6</span>, <span class="nu">1.0</span>),
+    }
+
+    model = GradientBoostingClassifier(**params, random_state=<span class="nu">42</span>)
+
+    <span class="kw">return</span> cross_val_score(
+        model, X, y,
+        cv=cv,
+        scoring=<span class="st">'roc_auc'</span>
+    ).mean()
+
+study = optuna.create_study(direction=<span class="st">'maximize'</span>)
+study.optimize(objective, n_trials=<span class="nu">50</span>)
+
+<span class="fn">print</span>(study.best_params)</pre>
+    </div>
+  </div>
+</div>
+
+
+</div><!-- /section-advanced -->
+
+
+<!-- ========= VISUALIZATIONS ========= -->
+<div class="section" id="section-visualizations">
+  <div class="section-header">
+    <div class="section-label" style="color:#1e9664">Visual Learning</div>
+    <h2>ML Visualizations</h2>
+    <p>Interactive Python code for confusion matrices, ROC curves, feature importance plots, and clustering visualisations — all using real sklearn datasets.</p>
+  </div>
+
+  <div class="viz-grid">
+
+    <!-- Confusion Matrix -->
+    <div class="viz-card">
+      <div class="viz-card-header">
+        <div>
+          <div class="viz-card-title">🔢 Confusion Matrix</div>
+          <div class="viz-card-sub">sklearn · ConfusionMatrixDisplay · Breast Cancer dataset</div>
+        </div>
+        <span class="tag tag-cls">Classification</span>
+      </div>
+      <div class="viz-info">
+        A confusion matrix shows true vs predicted classes. The diagonal is correct predictions; off-diagonal cells are errors. False Negatives (cancer missed) are far more costly than False Positives in medical diagnosis.
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> ConfusionMatrixDisplay, confusion_matrix
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>, stratify=data.target)
+
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_test_s  = scaler.transform(X_test)
+
+model = RandomForestClassifier(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>)
+model.fit(X_train_s, y_train)
+y_pred = model.predict(X_test_s)
+
+<span class="cm"># ── Raw numbers ─────────────────────────────────────</span>
+cm = confusion_matrix(y_test, y_pred)
+tn, fp, fn, tp = cm.ravel()
+<span class="fn">print</span>(<span class="st">f"True Negatives  (Malignant → Malignant): {tn}"</span>)
+<span class="fn">print</span>(<span class="st">f"False Positives (Malignant → Benign)   : {fp}"</span>)
+<span class="fn">print</span>(<span class="st">f"False Negatives (Benign   → Malignant) : {fn}"</span>)
+<span class="fn">print</span>(<span class="st">f"True Positives  (Benign   → Benign)    : {tp}"</span>)
+
+<span class="cm"># ── Normalized plot ─────────────────────────────────</span>
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">11</span>, <span class="nu">4</span>))
+<span class="kw">for</span> ax, norm <span class="kw">in</span> zip(axes, [<span class="kw">None</span>, <span class="st">'true'</span>]):
+    disp = ConfusionMatrixDisplay.from_predictions(
+        y_test, y_pred,
+        display_labels=data.target_names,
+        normalize=norm, ax=ax,
+        colorbar=<span class="kw">False</span>, cmap=<span class="st">'Blues'</span>
+    )
+    ax.set_title(<span class="st">'Counts'</span> <span class="kw">if</span> norm <span class="kw">is</span> <span class="kw">None</span> <span class="kw">else</span> <span class="st">'Normalised (row %)'</span>)
+plt.tight_layout()
+plt.savefig(<span class="st">'confusion_matrix.png'</span>, dpi=<span class="nu">150</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.show()</pre></div>
+      </div>
+    </div>
+
+    <!-- ROC Curves -->
+    <div class="viz-card">
+      <div class="viz-card-header">
+        <div>
+          <div class="viz-card-title">📉 ROC Curves &amp; AUC</div>
+          <div class="viz-card-sub">sklearn · RocCurveDisplay · multi-model comparison</div>
+        </div>
+        <span class="tag tag-cls">Classification</span>
+      </div>
+      <div class="viz-info">
+        ROC (Receiver Operating Characteristic) plots True Positive Rate vs False Positive Rate across all thresholds. AUC = area under the curve; perfect classifier = 1.0, random = 0.5. Use this to compare models independent of threshold choice.
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> RocCurveDisplay, auc, roc_curve
+<span class="kw">from</span> sklearn.linear_model <span class="kw">import</span> LogisticRegression
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier, GradientBoostingClassifier
+<span class="kw">from</span> sklearn.svm <span class="kw">import</span> SVC
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+
+X, y = load_breast_cancer(return_X_y=<span class="kw">True</span>)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=<span class="nu">0.2</span>,
+                                                    stratify=y, random_state=<span class="nu">42</span>)
+scaler = StandardScaler()
+X_train_s = scaler.fit_transform(X_train)
+X_test_s  = scaler.transform(X_test)
+
+models = {
+    <span class="st">'Logistic Regression'</span>: LogisticRegression(max_iter=<span class="nu">1000</span>),
+    <span class="st">'Random Forest'</span>:       RandomForestClassifier(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>),
+    <span class="st">'Gradient Boosting'</span>:   GradientBoostingClassifier(n_estimators=<span class="nu">100</span>, random_state=<span class="nu">42</span>),
+    <span class="st">'SVM (RBF)'</span>:           SVC(probability=<span class="kw">True</span>, random_state=<span class="nu">42</span>),
+}
+
+fig, ax = plt.subplots(figsize=(<span class="nu">8</span>, <span class="nu">6</span>))
+colors = [<span class="st">'#0a8f5c'</span>, <span class="st">'#6c3fc8'</span>, <span class="st">'#d94040'</span>, <span class="st">'#b07800'</span>]
+
+<span class="kw">for</span> (name, clf), color <span class="kw">in</span> zip(models.items(), colors):
+    clf.fit(X_train_s, y_train)
+    proba = clf.predict_proba(X_test_s)[:, <span class="nu">1</span>]
+    fpr, tpr, _ = roc_curve(y_test, proba)
+    roc_auc = auc(fpr, tpr)
+    ax.plot(fpr, tpr, color=color, lw=<span class="nu">2</span>,
+            label=<span class="st">f'{name} (AUC = {roc_auc:.3f})'</span>)
+
+ax.plot([<span class="nu">0</span>,<span class="nu">1</span>],[<span class="nu">0</span>,<span class="nu">1</span>], <span class="st">'k--'</span>, lw=<span class="nu">1</span>, label=<span class="st">'Random (AUC=0.5)'</span>)
+ax.set(xlabel=<span class="st">'False Positive Rate'</span>, ylabel=<span class="st">'True Positive Rate'</span>,
+       title=<span class="st">'ROC Curves — Breast Cancer'</span>)
+ax.legend(loc=<span class="st">'lower right'</span>)
+ax.grid(alpha=<span class="nu">0.3</span>)
+plt.tight_layout()
+plt.savefig(<span class="st">'roc_curves.png'</span>, dpi=<span class="nu">150</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.show()</pre></div>
+      </div>
+    </div>
+
+    <!-- Feature Importance -->
+    <div class="viz-card">
+      <div class="viz-card-header">
+        <div>
+          <div class="viz-card-title">📊 Feature Importance</div>
+          <div class="viz-card-sub">MDI · Permutation · SHAP — three methods compared</div>
+        </div>
+        <span class="tag tag-neutral">All Tasks</span>
+      </div>
+      <div class="viz-info">
+        Three ways to measure feature importance: MDI (built-in, fast but biased toward high-cardinality features), Permutation Importance (model-agnostic, unbiased), and SHAP (theoretically grounded, shows direction of effect).
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_breast_cancer
+<span class="kw">from</span> sklearn.ensemble <span class="kw">import</span> RandomForestClassifier
+<span class="kw">from</span> sklearn.inspection <span class="kw">import</span> permutation_importance
+<span class="kw">from</span> sklearn.model_selection <span class="kw">import</span> train_test_split
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = load_breast_cancer()
+X_train, X_test, y_train, y_test = train_test_split(
+    data.data, data.target, test_size=<span class="nu">0.2</span>, random_state=<span class="nu">42</span>, stratify=data.target)
+scaler = StandardScaler()
+X_tr_s = scaler.fit_transform(X_train)
+X_te_s = scaler.transform(X_test)
+
+model = RandomForestClassifier(n_estimators=<span class="nu">200</span>, random_state=<span class="nu">42</span>)
+model.fit(X_tr_s, y_train)
+
+<span class="cm"># ── 1. MDI (Gini) importance ─────────────────────────</span>
+mdi = pd.Series(model.feature_importances_, index=data.feature_names)
+
+<span class="cm"># ── 2. Permutation importance ──────────────────────</span>
+perm = permutation_importance(model, X_te_s, y_test,
+       n_repeats=<span class="nu">20</span>, random_state=<span class="nu">42</span>, n_jobs=<span class="op">-1</span>)
+perm_mean = pd.Series(perm.importances_mean, index=data.feature_names)
+
+top_n = <span class="nu">10</span>
+fig, axes = plt.subplots(<span class="nu">1</span>, <span class="nu">2</span>, figsize=(<span class="nu">13</span>, <span class="nu">5</span>))
+
+mdi.nlargest(top_n).sort_values().plot.barh(ax=axes[<span class="nu">0</span>], color=<span class="st">'#6c3fc8'</span>)
+axes[<span class="nu">0</span>].set_title(<span class="st">'MDI (Gini) Importance — Top 10'</span>)
+axes[<span class="nu">0</span>].set_xlabel(<span class="st">'Mean decrease in impurity'</span>)
+
+perm_mean.nlargest(top_n).sort_values().plot.barh(ax=axes[<span class="nu">1</span>], color=<span class="st">'#0a8f5c'</span>)
+axes[<span class="nu">1</span>].set_title(<span class="st">'Permutation Importance — Top 10'</span>)
+axes[<span class="nu">1</span>].set_xlabel(<span class="st">'Mean accuracy decrease on permutation'</span>)
+
+plt.tight_layout()
+plt.savefig(<span class="st">'feature_importance.png'</span>, dpi=<span class="nu">150</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.show()
+
+<span class="cm"># ── 3. SHAP (pip install shap) ─────────────────────
+# import shap
+# explainer   = shap.TreeExplainer(model)
+# shap_values = explainer.shap_values(X_te_s)
+# shap.summary_plot(shap_values[1], X_te_s, feature_names=data.feature_names)</span></pre></div>
+      </div>
+    </div>
+
+    <!-- Clustering Plots -->
+    <div class="viz-card">
+      <div class="viz-card-header">
+        <div>
+          <div class="viz-card-title">🔵 Clustering Visualisation</div>
+          <div class="viz-card-sub">K-Means · DBSCAN · t-SNE projection · Elbow plot</div>
+        </div>
+        <span class="tag tag-clu">Clustering</span>
+      </div>
+      <div class="viz-info">
+        Visualise cluster assignments in 2D using PCA projection, plus the elbow method to find the optimal k, and a silhouette score comparison across algorithms.
+      </div>
+      <div class="code-block">
+        <button class="code-toggle" onclick="toggleCode(this)">
+          <span class="arrow">▶</span> Show Code
+        </button>
+        <div class="code-content"><pre><span class="kw">from</span> sklearn.datasets <span class="kw">import</span> load_iris
+<span class="kw">from</span> sklearn.cluster <span class="kw">import</span> KMeans, DBSCAN, AgglomerativeClustering
+<span class="kw">from</span> sklearn.preprocessing <span class="kw">import</span> StandardScaler
+<span class="kw">from</span> sklearn.decomposition <span class="kw">import</span> PCA
+<span class="kw">from</span> sklearn.metrics <span class="kw">import</span> silhouette_score
+<span class="kw">import</span> matplotlib.pyplot <span class="kw">as</span> plt
+<span class="kw">import</span> numpy <span class="kw">as</span> np
+
+data = load_iris()
+X = StandardScaler().fit_transform(data.data)
+X2d = PCA(n_components=<span class="nu">2</span>).fit_transform(X)   <span class="cm"># 2D for plotting</span>
+
+<span class="cm"># ── Elbow method ────────────────────────────────────</span>
+inertias = [KMeans(n_clusters=k, random_state=<span class="nu">42</span>, n_init=<span class="nu">10</span>).fit(X).inertia_
+            <span class="kw">for</span> k <span class="kw">in</span> range(<span class="nu">1</span>, <span class="nu">10</span>)]
+
+<span class="cm"># ── Fit three algorithms ────────────────────────────</span>
+algos = {
+    <span class="st">'K-Means (k=3)'</span>:      KMeans(n_clusters=<span class="nu">3</span>, random_state=<span class="nu">42</span>, n_init=<span class="nu">10</span>),
+    <span class="st">'DBSCAN'</span>:             DBSCAN(eps=<span class="nu">0.5</span>, min_samples=<span class="nu">5</span>),
+    <span class="st">'Agglomerative (k=3)'</span>:AgglomerativeClustering(n_clusters=<span class="nu">3</span>, linkage=<span class="st">'ward'</span>),
+}
+
+fig = plt.figure(figsize=(<span class="nu">16</span>, <span class="nu">4</span>))
+
+<span class="cm"># Elbow plot</span>
+ax0 = fig.add_subplot(<span class="nu">1</span>, <span class="nu">4</span>, <span class="nu">1</span>)
+ax0.plot(range(<span class="nu">1</span>, <span class="nu">10</span>), inertias, <span class="st">'o-'</span>, color=<span class="st">'#6c3fc8'</span>)
+ax0.set(title=<span class="st">'Elbow Method'</span>, xlabel=<span class="st">'k'</span>, ylabel=<span class="st">'Inertia'</span>)
+ax0.axvline(<span class="nu">3</span>, ls=<span class="st">'--'</span>, c=<span class="st">'#d94040'</span>, alpha=<span class="nu">0.6</span>)
+
+colors_map = plt.get_cmap(<span class="st">'Set2'</span>)
+<span class="kw">for</span> idx, (name, algo) <span class="kw">in</span> enumerate(algos.items()):
+    labels = algo.fit_predict(X)
+    sil = silhouette_score(X, labels) <span class="kw">if</span> <span class="fn">len</span>(set(labels)) > <span class="nu">1</span> <span class="kw">else</span> <span class="nu">0</span>
+    ax = fig.add_subplot(<span class="nu">1</span>, <span class="nu">4</span>, idx+<span class="nu">2</span>)
+    scatter = ax.scatter(X2d[:, <span class="nu">0</span>], X2d[:, <span class="nu">1</span>],
+                         c=labels, cmap=<span class="st">'Set2'</span>, s=<span class="nu">25</span>, alpha=<span class="nu">0.85</span>,
+                         edgecolors=<span class="st">'k'</span>, linewidths=<span class="nu">0.3</span>)
+    ax.set_title(<span class="st">f'{name}\nSilhouette={sil:.3f}'</span>)
+    ax.set_xlabel(<span class="st">'PC1'</span>); ax.set_ylabel(<span class="st">'PC2'</span>)
+
+plt.tight_layout()
+plt.savefig(<span class="st">'clustering_plots.png'</span>, dpi=<span class="nu">150</span>, bbox_inches=<span class="st">'tight'</span>)
+plt.show()</pre></div>
+      </div>
+    </div>
+
+  </div><!-- /viz-grid -->
+</div><!-- /section-visualizations -->
+
+
+<div style="text-align:center;padding:40px;color:var(--muted);font-family:JetBrains Mono,monospace;font-size:11px;border-top:1px solid var(--border);margin-top:40px">
+  Built with scikit-learn · xgboost · numpy · pandas &nbsp;|&nbsp; All metrics are approximate and dataset-dependent
+</div>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => {
+    b.className = 'tab-btn';
+  });
+  document.getElementById('section-' + name).classList.add('active');
+  const btn = document.getElementById('tab-' + name);
+  const map = { regression: 'active-reg', classification: 'active-cls', clustering: 'active-clu', comparison: 'active-cmp', run: 'active-cmp', beginner: 'active-bgn', advanced: 'active-adv', visualizations: 'active-viz' };
+  if (btn) btn.classList.add(map[name] || 'active-cmp');
+}
+function toggleCode(btn) {
+  btn.classList.toggle('open');
+  btn.nextElementSibling.classList.toggle('open');
+  btn.querySelector('.arrow').textContent = btn.classList.contains('open') ? '▼' : '▶';
+  btn.childNodes[2].textContent = btn.classList.contains('open') ? ' Hide Code' : ' Show Code';
+}
+// Init tab
+showTab('regression');
+</script>
+</body>
+</html>
