@@ -2,7 +2,7 @@
 
 An interactive, responsive, and beautifully styled visual dashboard designed to serve as a comprehensive reference guide for core Machine Learning algorithms. Built entirely with clean semantic HTML, custom CSS variables, and native vanilla JavaScript, this single-page application covers everything from foundational theory to practical code implementation.
 
-🎨 **Live Demo:** `https://your-project-name.vercel.app` *(Replace with your actual Vercel link once deployed)*
+🎨 **Live Demo:** `mlguide-ten.vercel.app` *(Replace with your actual Vercel link once deployed)*
 
 ---
 
